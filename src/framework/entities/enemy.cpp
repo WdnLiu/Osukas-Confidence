@@ -143,8 +143,9 @@ void Enemy::update(float time_elapsed)
 		}
 		if (bulletCD + 0.1 <= Game::instance->time) {
 			bulletCD = Game::instance->time;
-			for (int i = 0; i <= 3; ++i)
-				Patterns::circle(Stage::instance->player->getPosition() + Vector3(0, 0.6, 0), Vector3((1.0f / 3.0f * i)*2-1, 0, 1).normalize(), model, bullets, amount[0], bullet_shaders[0], bullet_textures[0], bullet_meshes[0], false);
+			int N = 5;
+			for (int i = 0; i <= N; ++i)
+				Patterns::circle(Stage::instance->player->getPosition() + Vector3(0, 0.6, 0), Vector3((1.0f / N * i)*2-1, 0, 1).normalize(), model, bullets, amount[0], bullet_shaders[0], bullet_textures[0], bullet_meshes[0], false);
 		}
 	}
 
