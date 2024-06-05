@@ -11,6 +11,14 @@
 #include "framework/entities/entityUI.h"
 #include "StageManager.h"
 
+void Stage::resize()
+{
+	float width = Game::instance->window_width, height = Game::instance->window_height;
+	this->camera->aspect = width / (float)height;
+	this->camera2D->aspect = width / (float)height;
+	this->camera2D->setOrthographic(0, width, 0, height, -1, 1);
+}
+
 IntroStage::IntroStage()
 {
     // Create our camera

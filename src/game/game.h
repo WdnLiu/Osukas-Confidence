@@ -14,7 +14,6 @@ class Game
 {
 public:
 	static Game* instance;
-	Stage* stage;
 
 	//window
 	SDL_Window* window;

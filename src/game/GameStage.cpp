@@ -6,6 +6,7 @@
 #include "graphics/shader.h"
 #include "framework/input.h"
 #include "graphics/material.h"
+#include "graphics/render_to_texture.h"
 #include "framework/entities/enemy.h"
 #include "framework/entities/player.h"
 #include "framework/entities/entityUI.h"
@@ -394,6 +395,12 @@ void GameStage::renderBar(Vector2 barPosition, Vector2 barSize, float percentage
 //what to do when the image has to be draw
 void GameStage::render(void)
 {
+	if (!mainFBO) {
+		mainFBO = new RenderToTexture();
+		mainFBO->create(Game::instance->window_width, Game::instance->window_height);
+	}
+	mainFBO->enable();
+
 	// Set the clear color (the background color)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -415,6 +422,12 @@ void GameStage::render(void)
 	root_opaque->render(camera);
 	root_transparent->render(camera);
 
+	mainFBO->disable();
+	glDisable(GL_DEPTH_TEST);
+	Shader* shader = Shader::Get("data/shaders/scene.vs", "data/shaders/postfx1.fs");
+	shader->enable();
+
+	mainFBO->toViewport();
 
 	// Render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
@@ -564,4 +577,12 @@ void GameStage::onGamepadButtonDown(SDL_JoyButtonEvent event)
 void GameStage::onGamepadButtonUp(SDL_JoyButtonEvent event)
 {
 
+}
+
+void GameStage::resize()
+{
+	float width = Game::instance->window_width, height = Game::instance->window_height;
+	this->camera->aspect = width / (float)height;
+	this->camera2D->aspect = width / (float)height;
+	this->camera2D->setOrthographic(0, width, 0, height, -1, 1);
 }

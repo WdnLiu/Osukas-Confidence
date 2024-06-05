@@ -9,6 +9,7 @@
 #include "framework/utils.h"
 #include "framework/entities/entity.h"
 #include "framework/entities/entityCollider.h"
+#include "game/game.h"
 
 class Enemy;
 class Player;
@@ -50,4 +51,5 @@ public:
 
 	virtual bool ray_collided(Entity* root, std::vector<sCollisionData>& ray_collisions, Vector3 position, Vector3 direction, float dist, bool in_object_space = false, COL_TYPE collision_type = SCENARIO) { return false; };
 	virtual COL_TYPE sphere_collided(Entity* root, std::vector<sCollisionData>& collisions, Vector3 position, float radius, COL_TYPE collision_type = SCENARIO, bool check = false) { return COL_TYPE::NONE; };
+	virtual void resize();
 };
