@@ -32,6 +32,8 @@ public:
 	Shader* picshader;
 	Shader* squareshader;
 
+	Shader* shader;
+
 	float anxiety;
 	float anxiety_dt = 0;
 
@@ -49,6 +51,8 @@ public:
 	virtual void onMouseWheel(SDL_MouseWheelEvent event) {};
 	virtual void onGamepadButtonDown(SDL_JoyButtonEvent event) {};
 	virtual void onGamepadButtonUp(SDL_JoyButtonEvent event) {};
+
+
 
 	virtual void handlePlayerHP(Player* p, float hp) {};
 	virtual void handleEnemyHP(Enemy* e, float hp) {};
