@@ -155,9 +155,10 @@ void EntityMesh::renderWithLights(Camera* camera) {
 		}
 		int is_wall = (type & WALL);
 		int is_column = (type & COLUMN);
+		int is_deco = (type & DECO);
 		center_world.y = camera->eye.y;
 		float dist = camera->eye.distance(center_world);
-		if (dist < 15 && (is_wall != 0 || is_column != 0)) material.color.w = clamp(((dist - 7) / 8), 0, 1);
+		if (dist < 15 && (is_wall != 0 || is_column != 0 || is_deco != 0)) material.color.w = clamp(((dist - 7) / 8), 0, 1);
 		else material.color.w = 1;
 	}
 
