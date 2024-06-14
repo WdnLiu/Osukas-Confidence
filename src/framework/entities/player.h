@@ -23,6 +23,8 @@
 #define HITBOX_RAD 0.9
 #define PLAYER_HEIGHT 0.6
 
+#define ANIM_TRANSLATIONTIME 0.25
+
 
 class Player : public EntityCollider {
 

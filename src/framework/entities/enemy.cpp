@@ -50,6 +50,16 @@ void Enemy::render(Camera* camera)
 	flat_shader->setUniform("u_model", squash);
 
 	shadow_mesh->render(GL_TRIANGLES);
+
+	anim = animations[a_current];
+	Skeleton blended_skeleton = anim->skeleton;
+	if (Game::instance->time - a_timer < ANIM_TRANSITION) {
+		blendSkeleton(&animations[a_latest]->skeleton,
+			&animations[a_current]->skeleton,
+			(Game::instance->time - a_timer) / ANIM_TRANSITION, &blended_skeleton);
+	}
+
+	anim->assignTime(Game::instance->time - a_timer);
 	
 	if (!material.shader) {
 		material.shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/texture.fs");
@@ -65,7 +75,7 @@ void Enemy::render(Camera* camera)
 	material.shader->setUniform("u_model", model);
 	material.shader->setUniform("u_time", Game::instance->time);
 
-	mesh->renderAnimated(GL_TRIANGLES, &anim->skeleton);
+	mesh->renderAnimated(GL_TRIANGLES, &blended_skeleton);
 	// std::cout << isAnimated << std::endl;
 
 	// Disable shader after finishing rendering
@@ -165,9 +175,11 @@ void Enemy::update(float time_elapsed)
 
 	Vector3 player_center = getPosition() + Vector3(0, 1.2, 0);
 
-
-	if (looking_at_player) {
-		this->model.rotate(this->model.getYawRotationToAimTo(stage->player->model.getTranslation()), Vector3::UP);
+	if (moving) {
+		this->model.rotate(this->model.getYawRotationToAimTo(model.getTranslation() + direction) * time_elapsed * 10, Vector3::UP);
+	}
+	else if (looking_at_player) {
+		this->model.rotate(this->model.getYawRotationToAimTo(stage->player->model.getTranslation()) * time_elapsed * 10, Vector3::UP);
 	}
 
 	//player_center.y += PLAYER_HEIGHT;
@@ -180,7 +192,9 @@ void Enemy::update(float time_elapsed)
 	stage->ray_collided(stage->root, ground, player_center, -Vector3::UP, 1000, false, FLOOR);
 	stage->sphere_collided(stage->root, collisions, player_center, HITBOX_RAD, COL_TYPE::EBCOLS);
 
-
+	direction = model.getTranslation() - Vector3(current_destination.x, 0, current_destination.y);
+	direction.y = 0;
+	direction.normalize();
 	Vector3 currDirection = direction;
 
 	if (Input::isKeyPressed(SDL_SCANCODE_K))
@@ -210,7 +224,7 @@ void Enemy::update(float time_elapsed)
 	//	v_spd -= GRAVITY * time_elapsed;
 	//}
 
-	Vector3 movement = (currDirection.normalize() + Vector3::UP * (grounded ? (ground_y - getPosition().y) * 40 : v_spd)) * time_elapsed;
+	Vector3 movement = (currDirection.normalize() * (1 + 3 * (Game::instance->time - startMoving) - 1.5 * (startMoving - Game::instance->time) * (startMoving - Game::instance->time)) + Vector3::UP * (grounded ? (ground_y - getPosition().y) * 40 : v_spd)) * time_elapsed;
 
 	if (moving)
 	{
@@ -224,6 +238,10 @@ void Enemy::update(float time_elapsed)
 			//current_pattern = SUN;
 			std::cout << current_pattern << " " << r << std::endl;
 			burstCount = 0;
+
+			a_latest = a_current;
+			a_current = CASTING;
+			a_timer = Game::instance->time;
 		}
 		if (moving && bulletCD + .5 <= Game::instance->time) {
 			bulletCD = Game::instance->time;
@@ -237,15 +255,28 @@ void Enemy::update(float time_elapsed)
 	}
 	else
 	{
+		if (startFiring + patterndurations[current_pattern] <= Game::instance->time && burstCount == 0)
+		{
+			a_latest = a_current;
+			a_current = WALKING;
+			a_timer = Game::instance->time;
+
+			moving = true; 
+			looking_at_player = true;
+
+			startMoving = Game::instance->time;
+
+			int next_dest_id = random(0, possible_destinations.size() - 0.01);
+			Vector2 next_destination = possible_destinations[next_dest_id];
+			if (next_destination.x == current_destination.x && next_destination.y == next_destination.y) {
+				current_destination = possible_destinations[(next_dest_id + 1) % possible_destinations.size()];
+			}
+			else {
+				current_destination = next_destination;
+			}
+		}
 		switch (current_pattern) {
 		case SWIRL:
-			if (startFiring + 4 <= Game::instance->time)
-			{
-				moving = true; looking_at_player = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (bulletCD + 0.1 <= Game::instance->time) {
 				bulletCD = Game::instance->time;
 				//for (int i = 0; i <= 3; ++i)
@@ -261,13 +292,6 @@ void Enemy::update(float time_elapsed)
 			}
 			break;
 		case FLOWER:
-			if (startFiring + 4 <= Game::instance->time)
-			{
-				moving = true; looking_at_player = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (bulletCD + 0.1 <= Game::instance->time) {
 				bulletCD = Game::instance->time;
 				//for (int i = 0; i <= 3; ++i)
@@ -283,13 +307,6 @@ void Enemy::update(float time_elapsed)
 			}
 			break;
 		case HORIZONTAL:
-			if (startFiring + 4 <= Game::instance->time)
-			{
-				moving = true; looking_at_player = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (bulletCD + 0.3 <= Game::instance->time) {
 				bulletCD = Game::instance->time;
 				Matrix44 _m = model;
@@ -303,14 +320,6 @@ void Enemy::update(float time_elapsed)
 			}
 			break;
 		case SPIRAL:
-			if (startFiring + 6 <= Game::instance->time)
-			{
-				moving = true;
-				looking_at_player = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (bulletCD + 0.1 <= Game::instance->time) {
 				looking_at_player = false;
 				bulletCD = Game::instance->time;
@@ -329,14 +338,6 @@ void Enemy::update(float time_elapsed)
 			}
 			break;
 		case SHOTGUN:
-			if (startFiring + 7 <= Game::instance->time)
-			{
-				moving = true;
-				looking_at_player = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (bulletCD + 2 <= Game::instance->time) {
 				bulletCD = Game::instance->time;
 				Matrix44 _m = model;
@@ -353,14 +354,6 @@ void Enemy::update(float time_elapsed)
 			}
 			break;
 		case RINGS:
-			if (startFiring + 5 <= Game::instance->time)
-			{
-				moving = true;
-				looking_at_player = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (bulletCD + 0.3 <= Game::instance->time) {
 				looking_at_player = false;
 				bulletCD = Game::instance->time;
@@ -380,14 +373,6 @@ void Enemy::update(float time_elapsed)
 			}
 			break;
 		case TRAP:
-			if (startFiring + 8 <= Game::instance->time && burstCount == 0)
-			{
-				moving = true;
-				looking_at_player = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (bulletCD + 1.5 <= Game::instance->time) {
 				if (burstCount == 0) {
 					patternTarget = stage->player->model;
@@ -409,14 +394,6 @@ void Enemy::update(float time_elapsed)
 			}
 			break;
 		case REV:
-			if (startFiring + 8 <= Game::instance->time && burstCount == 0)
-			{
-				moving = true;
-				looking_at_player = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (bulletCD + 0.3 <= Game::instance->time) {
 				looking_at_player = false;
 				bulletCD = Game::instance->time;
@@ -431,13 +408,6 @@ void Enemy::update(float time_elapsed)
 			}
 			break;
 		case WAVY:
-			if (startFiring + 4 <= Game::instance->time)
-			{
-				moving = true; looking_at_player = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (bulletCD + 0.1 <= Game::instance->time) {
 				bulletCD = Game::instance->time;
 				//for (int i = 0; i <= 3; ++i)
@@ -454,13 +424,6 @@ void Enemy::update(float time_elapsed)
 			break;
 
 		case WAVY2:
-			if (startFiring + 4 <= Game::instance->time)
-			{
-				moving = true; looking_at_player = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (bulletCD + 0.1 <= Game::instance->time) {
 				bulletCD = Game::instance->time;
 				//for (int i = 0; i <= 3; ++i)
@@ -476,14 +439,6 @@ void Enemy::update(float time_elapsed)
 			}
 			break;
 		case SPIRALBURST:
-			if (startFiring + 6.2 <= Game::instance->time)
-			{
-				looking_at_player = true;
-				moving = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (burstCD + .05 <= Game::instance->time) {
 				looking_at_player = false;
 				burstCD = Game::instance->time;
@@ -494,14 +449,6 @@ void Enemy::update(float time_elapsed)
 			}
 			break;
 		case SUN:
-			if (startFiring + 4.4 <= Game::instance->time)
-			{
-				looking_at_player = true;
-				moving = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
 			if (bulletCD + 1.5 <= Game::instance->time) {
 				bulletCD = Game::instance->time;
 				//for (int i = 0; i <= 3; ++i)
@@ -521,14 +468,7 @@ void Enemy::update(float time_elapsed)
 			}
 			break;
 		case RINGSHOT:
-			if (startFiring + 5 <= Game::instance->time)
-			{
-				moving = true;
-				looking_at_player = true;
-				startMoving = Game::instance->time;
-				direction.x = (rand() % 2) * 2 - 1;
-				direction.z = (rand() % 2) * 2 - 1;
-			}
+
 			if (bulletCD + 1 <= Game::instance->time) {
 				looking_at_player = false;
 				bulletCD = Game::instance->time;

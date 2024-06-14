@@ -420,10 +420,10 @@ void Player::renderWithLights(Camera* camera) {
 
 	anim = animation_pool[current_animation];
 	Skeleton blended_skeleton = anim->skeleton;
-	if (Game::instance->time - timer_anim < 0.4) {
+	if (Game::instance->time - timer_anim < ANIM_TRANSLATIONTIME) {
 		blendSkeleton(&animation_pool[last_animation]->skeleton,
 			&animation_pool[current_animation]->skeleton,
-			(Game::instance->time - timer_anim) / 0.4, &blended_skeleton);
+			(Game::instance->time - timer_anim) / ANIM_TRANSLATIONTIME, &blended_skeleton);
 	}
 
 	Shader* shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/textureLight.fs");
@@ -774,7 +774,7 @@ void Player::update(float delta_time) {
 
 	Matrix44 _m = model;
 	dir.model = _m;
-	dir.model.translate(Vector3(0, 0.2 - (_m.getTranslation().y - ground_y), 0));
+	dir.model.translate(Vector3(0, 0.01 - (_m.getTranslation().y - ground_y), 0));
 	vec.model = _m;
 	Vector3 enemypos = stage->enemy->getPosition();
 	enemypos.y = 0;

@@ -7,6 +7,8 @@
 #define HITBOX_RAD 0.1
 #define PLAYER_HEIGHT 0.6
 
+#define ANIM_TRANSITION 0.5
+
 class Bullet;
 
 class Enemy : public EntityCollider {
@@ -69,6 +71,37 @@ public:
 		SUN,
 		RINGSHOT
 	};
+	std::vector <float> patterndurations;
+
+	std::vector<Vector2> possible_destinations;
+	Vector2 current_destination;
+
+
+
+	enum animations {
+		CASTING,
+		WALKING,
+		RAGE,
+		LAUGH,
+		DEATH
+	};
+
+
+
+	Animation* a_casting;
+	Animation* a_walk;
+	Animation* a_rage;
+	Animation* a_death;
+	Animation* a_laugh;
+
+
+
+	animations a_current = CASTING;
+	animations a_latest;
+	float a_timer = 0;
+
+
+	std::vector<Animation*> animations;
 
 	std::vector<Bullet*> bullets;
 	Shader* bullet_shaders[4]; Texture* bullet_textures[4]; Mesh* bullet_meshes[4];
@@ -127,7 +160,38 @@ public:
 		Mesh* m1 = Mesh::Get("data/meshes/bullet.obj");
 		bullet_meshes[0] = m1;
 
-		anim = Animation::Get("data/anims/maolixi/maolixi_idle.skanim");
+		a_casting = Animation::Get("data/anims/maolixi/maolixi_idle.skanim");
+		animations.push_back(a_casting);
+
+		a_walk = Animation::Get("data/anims/maolixi/maolixi_walk.skanim");
+		animations.push_back(a_walk);
+
+		a_rage = Animation::Get("data/anims/maolixi/maolixi_rage.skanim");
+		animations.push_back(a_rage);
+
+		a_death = Animation::Get("data/anims/maolixi/maolixi_die.skanim");
+		animations.push_back(a_death);
+
+		a_laugh = Animation::Get("data/anims/maolixi/maolixi_laugh.skanim");
+		animations.push_back(a_laugh);
+
+		anim = animations[CASTING];
+
+		possible_destinations = {
+			Vector2(10, 10),
+			Vector2(-10, -10),
+			Vector2(-10, 10),
+			Vector2(10, -10),
+			Vector2(0, -15),
+			Vector2(0, 15),
+			Vector2(15, 0),
+			Vector2(0, 15)
+		};
+
+		patterndurations = {4,4,4,6,7,5,8,8,4,4,6.2,4.4,5};
+
+
+		current_destination = possible_destinations[5];
 	}
 };
 

@@ -764,7 +764,14 @@ void GameStage::update(double seconds_elapsed)
 {
 	if (transitioningPhase) {
 		if (!secondPhase) {
-			// Transform animation
+			player->bullets.clear();
+			enemy->bullets.clear();
+			player->bullets_auto.clearInstances();
+			player->bullets_normal.clearInstances();
+			enemy->bullets_ball.clearInstances();
+			enemy->bullets_normal.clearInstances();
+			enemy->bullets_smallball.clearInstances();
+			enemy->bullets_giantball.clearInstances();
 		}
 		else {
 			// Death animation
@@ -776,6 +783,7 @@ void GameStage::update(double seconds_elapsed)
 			secondPhase = true;
 			currentAmbient = Vector3(0.7, 0.7, 0.8);
 			currSkyBox = cubemap2;
+
 		}
 		else if (Game::instance->time - transitionStart >= TRANSITION_TIME_WIN && secondPhase) {
 			transitioningPhase = false;
