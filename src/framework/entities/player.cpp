@@ -463,8 +463,8 @@ void Player::renderWithLights(Camera* camera) {
 	staminashader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	staminashader->setUniform("u_model", stam);
 	staminashader->setUniform("u_color", Vector4(0, 1, 0, 1));
-	staminashader->setUniform("u_percentage", stamina / 300);
-	staminashader->setUniform("u_decrease", staminadec / 300);
+	staminashader->setUniform("u_percentage", stamina / 200);
+	staminashader->setUniform("u_decrease", staminadec / 200);
 	//flat_shader->setTexture("u_texture", staminatext, 0);
 
 	staminabar->render(GL_TRIANGLES);
@@ -636,10 +636,10 @@ float Player::updateSubframe(float delta_time) {
 	mana = clamp(mana, 0, 300);
 
 	//stamina += ((stamina) + 1) * delta_time;
-	stamina += 20 * delta_time;
+	stamina += 40 * delta_time;
 	stamina += staminadec * delta_time * 10;
 	staminadec -= staminadec * delta_time * 10;
-	stamina = clamp(stamina, 0, 300);
+	stamina = clamp(stamina, 0, 200);
 
 	std::vector<sCollisionData> collisions;
 	std::vector<sCollisionData> ground;
@@ -687,7 +687,7 @@ float Player::updateSubframe(float delta_time) {
 }
 
 void Player::update(float delta_time) {
-	std::cout << stamina << "\n";
+	//std::cout << stamina << "\n";
 	Stage* stage = StageManager::instance->currStage;
 	if (stage->mouse_locked) model.rotate(Input::mouse_delta.x * (0.005f - (timer_bullet_general < knockback_time[bt]) * (0.0045f)), Vector3(0.0f, -1.0f, 0.0f));
 	float total_spd;
@@ -772,7 +772,7 @@ void Player::update(float delta_time) {
 
 	Matrix44 _m = model;
 	dir.model = _m;
-	dir.model.translate(Vector3(0, 0.01 - (_m.getTranslation().y - ground_y), 0));
+	dir.model.translate(Vector3(0, 0.2 - (_m.getTranslation().y - ground_y), 0));
 	vec.model = _m;
 	Vector3 enemypos = stage->enemy->getPosition();
 	enemypos.y = 0;

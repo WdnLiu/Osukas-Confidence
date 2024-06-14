@@ -19,9 +19,11 @@ out vec4 FragColor;
 
 void main() {
     vec2 uv = v_uv;
-
-    if (uv.x > u_percentage)
+    vec4 finalColor = u_color;
+    if (uv.x > u_percentage || uv.x < 0.22)
         discard;
+    else if (v_uv.x > u_percentage + u_decrease) 
+        finalColor = vec4(1);  
 
-    FragColor = u_color * texture(u_texture, uv) * uv.x;
+    FragColor = finalColor * texture(u_texture, uv) * (0.2 + uv.x);
 }

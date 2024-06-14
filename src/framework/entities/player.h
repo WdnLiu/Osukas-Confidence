@@ -128,9 +128,9 @@ public:
 		loadTextures();
 		loadAnims();
 
-		dir.mesh = Mesh::Get("data/meshes/directon.obj");
+		dir.mesh = Mesh::Get("data/meshes/direction2.obj");
 		dir.material.diffuse = Texture::Get("data/meshes/directon.mtl");
-		dir.material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/flat.fs");
+		dir.material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 		dir.material.color = Vector4(1);
 
 		vec.mesh = Mesh::Get("data/meshes/vec.obj");
