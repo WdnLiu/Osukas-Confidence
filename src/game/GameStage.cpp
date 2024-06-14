@@ -435,7 +435,10 @@ void GameStage::renderHUD()
 	Vector2 barPosition = Vector2(30 + gameWidth / 4.0, gameHeight - 40 - 15);
 	Vector2 barSize = Vector2(gameWidth/2.0f, 30);
 
-	renderBar(barPosition, barSize, anxiety/200.f, Vector3(clamp(255 - anxiety, 0, 255),clamp(anxiety, 0, 255),2)/255.0f, anxiety_dt/200.f);
+	renderBar(barPosition, barSize, anxiety/200.f, Vector3(
+		clamp(200 - anxiety, 0, 200),
+		clamp(anxiety, 0, 200),
+		2)/200.0f, anxiety_dt/200.f);
 
 	barPosition = Vector2(30 + gameWidth * 0.15f, gameHeight - 55 - 30);
 	barSize = Vector2(gameWidth*0.3f, 20);
@@ -686,6 +689,7 @@ void GameStage::render(void)
 	}
 	renderFBO->enable();
 	// Set the clear color (the background color)
+	std::cout << transitioningPhase << std::endl;
 	if (transitioningPhase) {
 		flashBang();
 		return;
@@ -737,10 +741,14 @@ void GameStage::render(void)
 	renderHUD();
 
 
-	//if (anxiety < 0) {
-	//	nextStage = "BadEndingStage";
-	//	StageManager::instance->transitioning = true;
-	//}
+	if (anxiety < -1) {
+		nextStage = "BadEndingStage";
+		StageManager::instance->transitioning = true;
+	}
+	if (victory) {
+		nextStage = "GoodEndingStage";
+		StageManager::instance->transitioning = true;
+	}
 }
 
 bool GameStage::compareFunction(const Entity* e1, const Entity* e2) {
@@ -754,21 +762,36 @@ bool GameStage::compareFunction(const Entity* e1, const Entity* e2) {
 
 void GameStage::update(double seconds_elapsed)
 {
-	if (Input::isKeyPressed(SDL_SCANCODE_L)) anxiety = 255*0.7;
-
 	if (transitioningPhase) {
-		if (Game::instance->time - transitionStart >= 1)
+		if (!secondPhase) {
+			// Transform animation
+		}
+		else {
+			// Death animation
+		}
+
+		if (Game::instance->time - transitionStart >= TRANSITION_TIME && !secondPhase)
 		{
 			transitioningPhase = false;
 			secondPhase = true;
 			currentAmbient = Vector3(0.7, 0.7, 0.8);
 			currSkyBox = cubemap2;
 		}
+		else if (Game::instance->time - transitionStart >= TRANSITION_TIME_WIN && secondPhase) {
+			transitioningPhase = false;
+			victory = true;
+		}
 		return;
 	}
 
-	if (!secondPhase && anxiety >= 255*0.6)
+	if (Input::isKeyPressed(SDL_SCANCODE_L)) anxiety += 100 * seconds_elapsed;
+
+	if (!secondPhase && anxiety >= 200*0.6)
 	{
+		transitioningPhase = true;
+		transitionStart = Game::instance->time;
+	}
+	if (anxiety > 199) {
 		transitioningPhase = true;
 		transitionStart = Game::instance->time;
 	}
@@ -925,6 +948,9 @@ void GameStage::onGamepadButtonUp(SDL_JoyButtonEvent event)
 
 void GameStage::switchstage(int flag) {
 	anxiety = 30;
+	currentAmbient = Vector3(0.25, 0.25, 0.45);
+	victory = false;
+	secondPhase = false;
 	enemy->model = Matrix44();
 	player->model.setTranslation(Vector3(10, 0, 0));
 	player->bullets.clear();
