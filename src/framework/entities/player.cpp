@@ -353,7 +353,7 @@ void Player::renderWithLights(Camera* camera) {
 		staminashader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture2.fs");
 	}
 
-	staminashader->enable();
+	//staminashader->enable();
 
 	//Matrix44 stam = model;
 	//stam.setTranslation(Vector3(model.getTranslation().x, ground_y + 0.1, model.getTranslation().z));
