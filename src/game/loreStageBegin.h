@@ -3,7 +3,6 @@
 #include "framework/audio.h"
 #include <graphics/render_to_texture.h>
 
-
 struct Font {
     Texture* font;
     Vector2 tilesize;
@@ -56,7 +55,6 @@ struct Box {
 class LoreStageBegin : Stage
 {
 public:
-    LoreStageBegin();
 
     HCHANNEL bgmusic;
     bool playingbgm = false;
@@ -69,6 +67,24 @@ public:
 
     RenderToTexture* renderFBO;
 
+    Font* font1;
+    Texture* gus;
+
+    Shader* textShader;
+
+    enum cinematic : uint8 {
+        INTRO,
+        GOODENDING,
+        BADENDING
+    };
+    cinematic flag = INTRO;
+
+    float timemultiplier = 1;
+    float timeoffset = 0;
+
+
+    LoreStageBegin(cinematic flag);
+
     void renderPic(Vector2 position, Vector2 size, Texture* diffuse);
     void renderLetter(Texture* font, Vector2 tileSize, char letter, Vector2 position, Vector2 size);
     void renderText(Texture* font, std::string text, float interval, Vector2 position, float fontsize, Vector2 tilesize, Vector2 textbox);
@@ -79,6 +95,10 @@ public:
     void pushTransition(float start_time, float fade_in, float fade_out, float duration, Vector4 color);
     void pushScene(const char* scenepath, float starttime, float endtime, Vector2 pos, Vector2 posdt, Vector2 size, Vector2 sizedt);
     void pushBox(float start_time, float fade_in, float fade_out, float duration, Vector4 color, Vector2 position, Vector2 size);
+
+    void loadIntro();
+    void loadGoodEnding();
+    void loadBadEnding();
 
     void render(void) override;
     void update(double seconds_elapsed) override;

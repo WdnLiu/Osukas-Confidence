@@ -15,12 +15,13 @@ StageManager::StageManager()
 
 	stages["IntroStage"] = (Stage*) new IntroStage();
 	stages["GameStage"] = (Stage*) new GameStage();
-	stages["LoreStageBegin"] = (Stage*) new LoreStageBegin();
+	stages["LoreStageBegin"] = (Stage*) new LoreStageBegin(LoreStageBegin::INTRO);
+	stages["GoodEndingStage"] = (Stage*) new LoreStageBegin(LoreStageBegin::GOODENDING);
 
 	transitioning = false;
 
 	StageManager::instance = this;
-	this->currStage = stages["LoreStageBegin"];
+	this->currStage = stages["GoodEndingStage"];
 }
 
 void StageManager::render() {

@@ -1,4 +1,5 @@
 #include "loreStageBegin.h"
+
 #include "framework/utils.h"
 #include "graphics/mesh.h"
 #include "graphics/texture.h"
@@ -13,13 +14,7 @@
 
 #include <string>
 
-std::vector<Texture*> scenes;
-Font* font1;
-Texture* gus;
-Shader* textShader;
-
-float timemultiplier = 1;
-float timeoffset = 0;
+class Stage;
 
 void LoreStageBegin::renderPic(Vector2 position, Vector2 size, Texture* diffuse) {
 	glDisable(GL_DEPTH_TEST);
@@ -243,27 +238,7 @@ void LoreStageBegin::pushBox(float start_time, float fade_in, float fade_out, fl
 	boxes.push_back(box);
 }
 
-LoreStageBegin::LoreStageBegin()
-{
-	renderFBO = NULL;
-
-	font1 = new Font();
-	font1->font = Texture::Get("data/textures/fontpool.PNG");
-	font1->tilesize = Vector2(16, 24);
-	textShader = Shader::Get("data/shaders/basic.vs", "data/shaders/text.fs");
-	picshader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	squareshader = Shader::Get("data/shaders/hud.vs", "data/shaders/square.fs");
-
-	gus = Texture::Get("data/textures/gus.png");
-	// Create our camera
-	camera = new Camera();
-	camera->lookAt(Vector3(0.f, 100.f, 100.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f)); //position the camera and point to 0,0,0
-	camera->setPerspective(70.f, Game::instance->window_width / (float)Game::instance->window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
-
-	camera2D = new Camera();
-	camera2D->view_matrix.setIdentity();
-	camera2D->setOrthographic(0, Game::instance->window_width, 0, Game::instance->window_height, -1, 1);
-
+void LoreStageBegin::loadIntro() {
 	int gamewidth = Game::instance->window_width;
 	int gameheight = Game::instance->window_height;
 
@@ -272,7 +247,6 @@ LoreStageBegin::LoreStageBegin()
 	float size;
 	float offset;
 	std::string nexttext;
-	nextStage = "IntroStage";
 
 	float starttime = 0;
 	float duration = 0;
@@ -289,13 +263,13 @@ LoreStageBegin::LoreStageBegin()
 	pushTransition(6, 1, 1, 1, Vector4(1, 1, 1, 1));
 
 
-	pushScene("data/textures/scene1.png", 7, 120, Vector2(gamewidth /2, gameheight/2 - gameheight/2), Vector2(0, 2), Vector2(gamewidth * 2, gameheight * 2), Vector2(20,20));
-	pushBox(9, 1, 1, 110, Vector4(0, 0, 0, 0.7), Vector2(gamewidth/2, gameheight * 0.15 + 50), Vector2(gamewidth * 0.8, gameheight * 0.3));
+	pushScene("data/textures/scene1.png", 7, 120, Vector2(gamewidth / 2, gameheight / 2 - gameheight / 2), Vector2(0, 2), Vector2(gamewidth * 2, gameheight * 2), Vector2(20, 20));
+	pushBox(9, 1, 1, 110, Vector4(0, 0, 0, 0.7), Vector2(gamewidth / 2, gameheight * 0.15 + 50), Vector2(gamewidth * 0.8, gameheight * 0.3));
 
 	offset = 0.045;
 
 	nexttext = "Osuka Reiesu es un joven immigrante que acaba de llegar al barrio de XiwangNan, trabajando bajo un contrato desfavorable en el Bar Leinuozi bajo el mando del malvado Maolixi Keermeneiluo. "; size = 1.2;
-	pushText(nexttext, offset, 10, 22, size, Vector2(gamewidth * 0.1 + 30, gameheight * 0.3 + 20), Vector2(gamewidth*0.9 - 30), font1);
+	pushText(nexttext, offset, 10, 22, size, Vector2(gamewidth * 0.1 + 30, gameheight * 0.3 + 20), Vector2(gamewidth * 0.9 - 30), font1);
 
 	offset = 0.05;
 
@@ -305,7 +279,7 @@ LoreStageBegin::LoreStageBegin()
 	nexttext = "Maolixi: Osuka! Todavia no has fregado los platos?? Eres un inutil, te doy un trabajo y asi me lo pagas!";
 	pushText(nexttext, offset, 23, 33, size, Vector2(gamewidth * 0.1 + 30, gameheight * 0.3 + 20), Vector2(gamewidth * 0.9 - 30), font1, "maolixi1.mp3");
 
-	nexttext = "Osuka: Pero señor, ya los he lavado."; 
+	nexttext = "Osuka: Pero señor, ya los he lavado.";
 	pushText(nexttext, offset, 33, 35.2, size, Vector2(gamewidth * 0.1 + 30, gameheight * 0.3 + 20), Vector2(gamewidth * 0.9 - 30), font1, "osuka1.mp3");
 
 	nexttext = "Maolixi: Que te calles! Pues los lavas otra vez!!";
@@ -328,8 +302,8 @@ LoreStageBegin::LoreStageBegin()
 	pushText(nexttext, offset, 80, 110, size, Vector2(gamewidth * 0.1 + 30, gameheight * 0.3 + 20), Vector2(gamewidth * 0.9 - 30), font1);
 
 	pushTransition(94, 7, 1, 100, Vector4(1, 1, 1, 1));
-	
-	
+
+
 
 	//nexttext = "La historia de un pobre desgraciado que inmigro a otro pais"; center_x = (gamewidth - 1 * nexttext.size() * font1->tilesize.x) / 2 + 5;
 	//pushText(nexttext, 0.05, 5, 1, Vector2(center_x, 500 - font1->tilesize.y * 1.8), font1);
@@ -353,6 +327,96 @@ LoreStageBegin::LoreStageBegin()
 	Audio::Get("data/audio/loredump/osuka2.mp3");
 	Audio::Get("data/audio/loredump/storybgm.flac");
 	Audio::Get("data/audio/loredump/bgm.flac");
+}
+
+void LoreStageBegin::loadGoodEnding() {
+	int gamewidth = Game::instance->window_width;
+	int gameheight = Game::instance->window_height;
+
+	float textDuration;
+	float centerX;
+	float size;
+	float offset;
+	std::string nexttext;
+
+	float starttime = 0;
+	float endtime = 0;
+
+	nexttext = "Osuka Reiesu hoy se despierta"; size = 1.5; offset = 0.05; starttime = 2.5; endtime = 9;
+	getCenterX(nexttext, font1, size, offset, centerX, textDuration);
+	pushText(nexttext, offset, starttime, endtime, size, Vector2(centerX, 500), Vector2(gamewidth), font1);
+
+	nexttext = "Con GRAN confianza"; size = 3; offset = 0.1; starttime = 4.5; endtime = 9;
+	getCenterX(nexttext, font1, size, offset, centerX, textDuration);
+	pushText(nexttext, offset, starttime, endtime, size, Vector2(centerX, 500 - font1->tilesize.y * 3), Vector2(gamewidth), font1);
+
+
+	pushTransition(8, 1, 1, 1, Vector4(1, 1, 1, 1));
+	starttime = 9; endtime = 32;
+	Vector2 pos = Vector2(gamewidth / 2, gameheight / 2 - gameheight / 3), posdt = Vector2(3, 5);
+	Vector2 picsize = Vector2(gamewidth * 2, gameheight * 2), picsizedt = Vector2(-14, -14);
+	pushScene("data/textures/goodending.PNG", starttime, endtime, pos, posdt, picsize, picsizedt);
+
+
+
+
+	size = 1.5; offset = 0.05; starttime = 10; endtime = 80;
+	pushBox(starttime, 1, 1, endtime - starttime, Vector4(0, 0, 0, 0.7), Vector2(gamewidth / 2, 150 + 50), Vector2(gamewidth * 0.8, 300));
+
+	nexttext = "Osuka: Maolixi, ya no voy a tolerar mas faltas de respeto. Ademas, me vas a hacer un contrato oficial, y me vas a subir el sueldo."; 
+	size = 1.5; offset = 0.05; starttime = 11; endtime = 22;
+	pushText(nexttext, offset, starttime, endtime, size, Vector2(gamewidth * 0.1 + 30, gameheight * 0.3 + 20), Vector2(gamewidth * 0.9 - 30), font1, "osukagood1.mp3");
+
+	nexttext = "Osuka: Ya te puedes despedir de mi si no aceptas las condiciones.";
+	size = 1.5; offset = 0.05; starttime = 22; endtime = 27;
+	pushText(nexttext, offset, starttime, endtime, size, Vector2(gamewidth * 0.1 + 30, gameheight * 0.3 + 20), Vector2(gamewidth * 0.9 - 30), font1, "osukagood2.mp3");
+
+	nexttext = "Maolixi: Oh dios mio!";
+	size = 1.5; offset = 0.05; starttime = 27; endtime = 32;
+	pushText(nexttext, offset, starttime, endtime, size, Vector2(gamewidth * 0.1 + 30, gameheight * 0.3 + 20), Vector2(gamewidth * 0.9 - 30), font1, "maolixigood1.mp3");
+	
+	pushTransition(30, 2, 0.1, 1, Vector4(1, 1, 1, 1));
+
+
+	nexttext = "Se dice que Osuka se hizo el jefe del local..."; size = 1.5; offset = 0.05; starttime = 33; endtime = 42;
+	getCenterX(nexttext, font1, size, offset, centerX, textDuration);
+	pushText(nexttext, offset, starttime, endtime, size, Vector2(centerX, 500), Vector2(gamewidth), font1);
+
+	pushTransition(37, 5, 0.1, 1, Vector4(1, 1, 1, 1));
+
+	Audio::Get("data/audio/loredump/bgmgood.flac");
+	Audio::Get("data/audio/loredump/osukagood1.mp3");
+	Audio::Get("data/audio/loredump/osukagood2.mp3");
+	Audio::Get("data/audio/loredump/maolixigood1.mp3");
+}
+
+LoreStageBegin::LoreStageBegin(cinematic flag)
+{
+	this->flag = flag;
+	renderFBO = NULL;
+
+	font1 = new Font();
+	font1->font = Texture::Get("data/textures/fontpool.PNG");
+	font1->tilesize = Vector2(16, 24);
+	textShader = Shader::Get("data/shaders/basic.vs", "data/shaders/text.fs");
+	picshader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	squareshader = Shader::Get("data/shaders/hud.vs", "data/shaders/square.fs");
+
+	gus = Texture::Get("data/textures/gus.png");
+	// Create our camera
+	camera = new Camera();
+	camera->lookAt(Vector3(0.f, 100.f, 100.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f)); //position the camera and point to 0,0,0
+	camera->setPerspective(70.f, Game::instance->window_width / (float)Game::instance->window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
+
+	camera2D = new Camera();
+	camera2D->view_matrix.setIdentity();
+	camera2D->setOrthographic(0, Game::instance->window_width, 0, Game::instance->window_height, -1, 1);
+
+
+	nextStage = "IntroStage";
+
+	if (flag == INTRO) loadIntro();
+	else if (flag == GOODENDING) loadGoodEnding();
 }
 
 void LoreStageBegin::render()
@@ -487,18 +551,31 @@ void LoreStageBegin::update(double seconds_elapsed)
 
 	float time = timemultiplier * Game::instance->time + timeoffset;
 
-    if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 102) {
-        StageManager::instance->transitioning = true;
-		Audio::Stop(bgmusic);
-    } 
 
-	if (time > 22 && !playingbgm) {
-		bgmusic = Audio::Play("data/audio/loredump/bgm.flac", 0.10);
-		playingbgm = true;
-	}		
-	if (time > 8 && !playingbgm1) {
-		bgmusic = Audio::Play("data/audio/loredump/bgm1.flac", 0.18);
-		playingbgm1 = true;
+
+	if (flag == INTRO) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 102) {
+			StageManager::instance->transitioning = true;
+			Audio::Stop(bgmusic);
+		}
+		if (time > 22 && !playingbgm) {
+			bgmusic = Audio::Play("data/audio/loredump/bgm.flac", 0.10);
+			playingbgm = true;
+		}
+		if (time > 8 && !playingbgm1) {
+			bgmusic = Audio::Play("data/audio/loredump/bgm1.flac", 0.18);
+			playingbgm1 = true;
+		}
+	}
+	else if (flag == GOODENDING) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 47) {
+			StageManager::instance->transitioning = true;
+			Audio::Stop(bgmusic);
+		}
+		if (time > 9 && !playingbgm1) {
+			bgmusic = Audio::Play("data/audio/loredump/bgmgood.flac", 0.3);
+			playingbgm1 = true;
+		}
 	}
 
 	seconds_elapsed *= timemultiplier;
@@ -508,6 +585,7 @@ void LoreStageBegin::update(double seconds_elapsed)
 	int gameheight = Game::instance->window_height;
 
 	for (int i = 0; i < scenes.size(); i++) {
+
 		if (time > scenes[i].starttime && time < scenes[i].endtime) {
 			scenes[i].size = scenes[i].size + scenes[i].size_dt * seconds_elapsed;
 			scenes[i].position = scenes[i].position + scenes[i].position_dt * seconds_elapsed;
