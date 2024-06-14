@@ -14,7 +14,7 @@ void EntityMesh::render(Camera* camera) {
 		return;
 	}
 	if (type == BORDER) {
-		std::cout << "is border! ";
+		//std::cout << "is border! ";
 		return;
 	}
 	std::vector<Matrix44>* final_models = &models;
@@ -22,7 +22,7 @@ void EntityMesh::render(Camera* camera) {
 
 	int is_border = (type & BORDER);
 	if (is_border != 0) {
-		std::cout << "is border! ";
+		//std::cout << "is border! ";
 		return;
 	}
 

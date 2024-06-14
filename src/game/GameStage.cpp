@@ -326,9 +326,7 @@ GameStage::GameStage()
 
 	player->material = *mat;
 	player->isAnimated = true;
-	e2 = new Player();
-	e2->model.setTranslation(Vector3(10, 0, 5));
-	player->model.setTranslation(Vector3(1, 0, 1));
+	player->model.setTranslation(Vector3(10, 0, 0));
 	player->box_cam = Vector3(0, 0, 10);
 	// AAA
 
@@ -336,6 +334,7 @@ GameStage::GameStage()
 	mat2->color = Vector4(1, 1, 1, 1);
 	mat2->shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/texture.fs");
 	mat2->diffuse = Texture::Get("data/meshes/maolixi.png");
+
 	enemy = new Enemy(Mesh::Get("data/meshes/maolixi.MESH"), *mat2, "Francisco", true, 1);
 	enemy->model.setTranslation(Vector3(0, 0, 0));
 	this->enemy = enemy;
@@ -412,6 +411,7 @@ GameStage::GameStage()
 
 	lights.push_back(mainLight); lights.push_back(centerLight);
 }
+
 
 
 void GameStage::renderHUD()
@@ -706,6 +706,12 @@ void GameStage::render(void)
 
 	//amogus.render(camera2D);
 	renderHUD();
+
+
+	//if (anxiety < 0) {
+	//	nextStage = "BadEndingStage";
+	//	StageManager::instance->transitioning = true;
+	//}
 }
 
 bool GameStage::compareFunction(const Entity* e1, const Entity* e2) {
@@ -816,6 +822,8 @@ void GameStage::update(double seconds_elapsed)
 	}
 	enemy->update(seconds_elapsed);
 	player->update(seconds_elapsed);
+
+
 }
 
 //Keyboard event handler (sync input)
@@ -865,6 +873,20 @@ void GameStage::onGamepadButtonDown(SDL_JoyButtonEvent event)
 void GameStage::onGamepadButtonUp(SDL_JoyButtonEvent event)
 {
 
+}
+
+void GameStage::switchstage(int flag) {
+	anxiety = 30;
+	enemy->model = Matrix44();
+	player->model.setTranslation(Vector3(10, 0, 0));
+	player->bullets.clear();
+	enemy->bullets.clear();
+	player->bullets_auto.clearInstances();
+	player->bullets_normal.clearInstances();
+	enemy->bullets_ball.clearInstances();
+	enemy->bullets_normal.clearInstances();
+	enemy->bullets_smallball.clearInstances();
+	enemy->bullets_giantball.clearInstances();
 }
 
 void GameStage::resize()

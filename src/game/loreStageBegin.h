@@ -56,9 +56,13 @@ class LoreStageBegin : Stage
 {
 public:
 
+    float starttime;
+
     HCHANNEL bgmusic;
     bool playingbgm = false;
     bool playingbgm1 = false;
+
+    bool baddream = false;
 
     std::vector<Text> texts;
     std::vector<ColorTransition> transitions;
@@ -102,6 +106,8 @@ public:
 
     void render(void) override;
     void update(double seconds_elapsed) override;
+
+    void switchstage(int flag) override;
 
     void resize() override;
 };

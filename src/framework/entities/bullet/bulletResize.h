@@ -58,6 +58,25 @@ public:
 		Audio::Play("data/audio/shoot.wav", BULLET_VOL);
 	};
 
+
+	void clearInstances() {
+		this->spawn_time.clear();
+
+		this->models.clear();
+		this->__models.clear();
+
+		this->sizes.clear();
+		this->sizes_spd.clear();
+		this->sizes_accel.clear();
+		this->sizes_limits.clear();
+		this->sizes_spd_limits.clear();
+
+		this->speeds.clear();
+		this->accels.clear();
+		this->angular_speeds.clear();
+		this->angular_accels.clear();
+	}
+
 	void despawnBullet(int i) {
 		models.erase((models.begin() + i));
 		__models.erase((__models.begin() + i));

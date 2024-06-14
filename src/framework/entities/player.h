@@ -56,6 +56,7 @@ public:
 
 	bullet_type bt = circle;
 	float mana;
+	float stamina;
 	bool autoshoot = false;
 	std::vector<Bullet*> bullets;
 	uint16 bullet_idx_first = 0;
@@ -72,10 +73,13 @@ public:
 	PatternFunc patterns[4] = { (PatternFunc) Patterns::autoAim , (PatternFunc) Patterns::circle, (PatternFunc) Patterns::shotgun, (PatternFunc) Patterns::sniper };
 	Material charge_mat;
 	Mesh* charge_mesh;
+
 	Matrix44 charge_model;
 
 	EntityMesh dir;
 	EntityMesh vec;
+
+
 
 	BulletNormal bullets_normal;
 	BulletAuto bullets_auto;
@@ -100,6 +104,9 @@ public:
 	void sphere_bullet_collision(Vector3 position, float radius);
 
 	HCHANNEL charge_channel;
+	
+	Mesh staminabar;
+	Shader* staminashader;
 
 	// TODO: Hitbox stuff 
 	bool can_be_hit = true;
@@ -114,6 +121,7 @@ public:
 	Player() {
 		//material.shader == nullptr ? std::cout << "NULL SHADER" : std::cout << "GOOD SHADER";
 		this->mana = DEFAULT_MANA;
+		this->stamina = 200;
 		this->type = PLAYER;
 		loadTextures();
 		loadAnims();
@@ -127,6 +135,10 @@ public:
 		vec.material.diffuse = Texture::Get("data/meshes/vec.mtl");
 		vec.material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 		vec.material.color = Vector4(0.5,0.5,1,0.2);
+
+		//staminabar = Mesh::Get("data/meshes/staminabar.obj");
+		staminabar.createQuad(1, 1, 10, 10, false);
+		staminashader = NULL;
 	};
 	Player(Mesh* mesh, const Material& material, const std::string& name = "", float speed = 0, float mana = DEFAULT_MANA) {
 		this->mesh = mesh;

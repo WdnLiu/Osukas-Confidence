@@ -390,10 +390,56 @@ void LoreStageBegin::loadGoodEnding() {
 	Audio::Get("data/audio/loredump/maolixigood1.mp3");
 }
 
+
+void LoreStageBegin::loadBadEnding() {
+	int gamewidth = Game::instance->window_width;
+	int gameheight = Game::instance->window_height;
+
+	float textDuration;
+	float centerX;
+	float size;
+	float offset;
+	std::string nexttext;
+
+	float starttime = 0;
+	float endtime = 0;
+
+	pushBox(0, 0, 2, 1, Vector4(0, 0, 0, 1), Vector2(gamewidth / 2, gameheight /2), Vector2(gamewidth, gameheight));
+	pushBox(0, 0, 0, 8, Vector4(0, 0, 0, 0.7), Vector2(gamewidth / 2, gameheight /2 ), Vector2(gamewidth, gameheight));
+
+	starttime = 0; endtime = 8;
+	Vector2 pos = Vector2(gamewidth / 2, gameheight / 2), posdt = Vector2(0, 0);
+	Vector2 picsize = Vector2(gamewidth, gameheight), picsizedt = Vector2(30, 30);
+	pushScene("data/textures/badending1.PNG", starttime, endtime, pos, posdt, picsize, picsizedt);
+
+	nexttext = "Osuka Reiesu se despierta"; size = 2; offset = 0.03; starttime = 2.5; endtime = 9;
+	getCenterX(nexttext, font1, size, offset, centerX, textDuration);
+	pushText(nexttext, offset, starttime, endtime, size, Vector2(centerX, 600), Vector2(gamewidth), font1);
+
+
+	nexttext = "aterrorizado de esta pesadilla,"; size = 2; offset = 0.03; starttime = 3.4; endtime = 9;
+	getCenterX(nexttext, font1, size, offset, centerX, textDuration);
+	pushText(nexttext, offset, starttime, endtime, size, Vector2(centerX, 600 - font1->tilesize.y * 2), Vector2(gamewidth), font1);
+
+	nexttext = "a punto de estallar a lloros"; size = 2; offset = 0.03; starttime = 4.5; endtime = 9;
+	getCenterX(nexttext, font1, size, offset, centerX, textDuration);
+	pushText(nexttext, offset, starttime, endtime, size, Vector2(centerX, 600 - font1->tilesize.y * 4), Vector2(gamewidth), font1);	
+	
+	nexttext = "..."; size = 5; offset = 0.7; starttime = 5.5; endtime = 9;
+	getCenterX(nexttext, font1, size, offset, centerX, textDuration);
+	pushText(nexttext, offset, starttime, endtime, size, Vector2(centerX, 600 - font1->tilesize.y * 10), Vector2(gamewidth), font1);
+
+	pushTransition(5.5, 2.5, 1, 2, Vector4(1, 1, 1, 1));
+
+	Audio::Get("data/audio/loredump/badending1.wav");
+}
+
 LoreStageBegin::LoreStageBegin(cinematic flag)
 {
 	this->flag = flag;
 	renderFBO = NULL;
+
+	starttime = Game::instance->time;
 
 	font1 = new Font();
 	font1->font = Texture::Get("data/textures/fontpool.PNG");
@@ -417,10 +463,12 @@ LoreStageBegin::LoreStageBegin(cinematic flag)
 
 	if (flag == INTRO) loadIntro();
 	else if (flag == GOODENDING) loadGoodEnding();
+	else if (flag == BADENDING) loadBadEnding();
 }
 
 void LoreStageBegin::render()
 {
+
 
 	// Set the clear color (the background color)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -437,7 +485,7 @@ void LoreStageBegin::render()
 
 	//drawText(Game::instance->window_width / 2.0f, Game::instance->window_height / 2.0f, "AAE", Vector3(((int)Game::instance->time) % 2), 5);
 
-	float time = timemultiplier * Game::instance->time + timeoffset;
+	float time = timemultiplier * Game::instance->time + timeoffset - starttime;
 
 	int gamewidth = Game::instance->window_width;
 	int gameheight = Game::instance->window_height;
@@ -549,7 +597,7 @@ void LoreStageBegin::render()
 void LoreStageBegin::update(double seconds_elapsed)
 {
 
-	float time = timemultiplier * Game::instance->time + timeoffset;
+	float time = timemultiplier * Game::instance->time + timeoffset - starttime;
 
 
 
@@ -577,6 +625,21 @@ void LoreStageBegin::update(double seconds_elapsed)
 			playingbgm1 = true;
 		}
 	}
+	else if (flag == BADENDING) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 10) {
+			StageManager::instance->transitioning = true;
+			Audio::Stop(bgmusic);
+		}
+		if (!baddream && time > 1) {
+			bgmusic = Audio::Play("data/audio/loredump/badending1.wav", 0.7);
+			baddream = true;
+		}
+	}
+
+	if (Input::wasKeyPressed(SDL_SCANCODE_B)) {
+		Audio::Stop(bgmusic);
+		switchstage(flag);
+	}
 
 	seconds_elapsed *= timemultiplier;
 
@@ -591,6 +654,24 @@ void LoreStageBegin::update(double seconds_elapsed)
 			scenes[i].position = scenes[i].position + scenes[i].position_dt * seconds_elapsed;
 		}
 	}
+}
+
+void LoreStageBegin::switchstage(int c)
+{
+	starttime = Game::instance->time;
+
+	texts.clear();
+	transitions.clear();
+	scenes.clear();
+	boxes.clear();
+
+	baddream = false;
+	playingbgm = false;
+	playingbgm1 = false;
+
+	if (flag == INTRO) loadIntro();
+	else if (flag == GOODENDING) loadGoodEnding();
+	else if (flag == BADENDING) loadBadEnding();
 }
 
 void LoreStageBegin::resize()

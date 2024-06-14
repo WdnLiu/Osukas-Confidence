@@ -70,4 +70,6 @@ public:
 	bool parseScene(const char* filename);
 
 	void resize() override;
+
+	void switchstage(int flag) override;
 };

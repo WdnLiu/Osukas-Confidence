@@ -44,6 +44,16 @@ public:
 		Audio::Play("data/audio/shoot.wav", BULLET_VOL);
 	};
 
+	void clearInstances() {
+		this->spawn_time.clear();
+
+		this->models.clear();
+		this->speeds.clear();
+		this->accels.clear();
+		this->angular_speeds.clear();
+		this->angular_accels.clear();
+	}
+
 	void move(Vector3 vec);
 	// Methods overwritten from base class
 	void render(Camera* camera);
