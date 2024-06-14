@@ -11,6 +11,7 @@ public:
 	Shader* shader = nullptr;
 	Vector4 color = Vector4(1.f);
 	Texture* diffuse = nullptr;
+	Texture* normalMap = nullptr;
 };
 
 struct sRenderData {

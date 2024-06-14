@@ -387,6 +387,8 @@ void Player::renderWithLights(Camera* camera) {
 	shader->setUniform("u_color", targetable ? material.color : Vector4(1,1,1,0.1 + 0.9 * (can_be_hit) * ((int)(Game::instance->time * 10) % 2)));
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 
+	shader->setUniform("u_normal_option", 0);
+
 	shader->setUniform("eye", camera->eye);
 	shader->setUniform("u_alpha", 30.0f);
 	shader->setUniform("u_specular", 0.2f);

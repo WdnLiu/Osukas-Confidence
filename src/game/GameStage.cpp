@@ -66,7 +66,7 @@ static void renderSkybox(Texture* cubemap)
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
-	Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/skybox.fs");
+	Shader* shader = Shader::Get("data/shaders/basic_skybox.vs", "data/shaders/skybox.fs");
 	if (!shader)
 		return;
 	shader->enable();
@@ -80,6 +80,7 @@ static void renderSkybox(Texture* cubemap)
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	shader->setUniform("u_texture", cubemap, 0);
 	cube->render(GL_TRIANGLES);
+
 	shader->disable();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
@@ -169,8 +170,11 @@ bool GameStage::parseScene(const char* filename)
 		}
 		else {
 			Mesh* mesh = Mesh::Get(mesh_name.c_str());
+			mat.normalMap = Texture::Get("data/textures/floorNormal.tga");
+
 			new_entity = new EntityCollider(mesh, mat);
 			new_entity->type = FLOOR;
+
 			std::cout << " This is floor! ";
 		}
 		std::cout << std::endl << "Tag: " << tag << std::endl;
@@ -204,8 +208,6 @@ bool GameStage::parseScene(const char* filename)
 			root_opaque->addChild(new_entity);
 			std::cout << " This is a Opaque element";
 		}
-
-
 	}
 
 	std::cout << "Scene [OK]" << " Meshes added: " << mesh_count << std::endl;
@@ -666,16 +668,14 @@ void GameStage::render(void)
 	// Set the camera as default
 	camera->enable();
 
+	renderSkybox(cubemap);
 
-	
-
-	// Set flags
+	//// Set flags
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
 	//drawGrid();
-	renderSkybox(cubemap);
 
 	root_opaque->renderWithLights(camera);
 
@@ -687,9 +687,6 @@ void GameStage::render(void)
 	root_transparent->renderWithLights(camera);
 
 	glDisable(GL_DEPTH_TEST);
-
-
-
 
 	renderFBO->disable();
 

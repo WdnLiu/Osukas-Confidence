@@ -28,11 +28,43 @@ uniform sampler2D u_shadowmap;
 uniform mat4 u_shadowmap_viewprojection;
 uniform float u_shadow_bias;
 
+uniform float u_normal_option;
+uniform sampler2D u_normal_map;
+
 #define POINTLIGHT 1
 #define SPOTLIGHT 2
 #define DIRECTIONALLIGHT 3
 
 out vec4 FragColor;
+
+mat3 cotangent_frame(vec3 N, vec3 p, vec2 uv)
+{
+    // get edge vectors of the pixel triangle
+    vec3 dp1 = dFdx( p );
+    vec3 dp2 = dFdy( p );
+    vec2 duv1 = dFdx( uv );
+    vec2 duv2 = dFdy( uv );
+    
+    // solve the linear system
+    vec3 dp2perp = cross( dp2, N );
+    vec3 dp1perp = cross( N, dp1 );
+    vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+    vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+ 
+    // construct a scale-invariant frame 
+    float invmax = inversesqrt( max( dot(T,T), dot(B,B) ) );
+    return mat3( T * invmax, B * invmax, N );
+}
+
+// assume N, the interpolated vertex normal and 
+// WP the world position
+//vec3 normal_pixel = texture2D( normalmap, uv ).xyz; 
+vec3 perturbNormal(vec3 N, vec3 WP, vec3 normal_pixel, vec2 uv)
+{
+    normal_pixel = normal_pixel * 255./127. - 128./127.;
+    mat3 TBN = cotangent_frame(N, WP, uv);
+    return normalize(TBN * normal_pixel);
+}
 
 float computeShadow(vec3 wp)
 {
@@ -143,6 +175,11 @@ void main()
 
     vec3 N = normalize( v_normal );
     vec3 light = vec3(u_ambient_light);
+
+    if(u_normal_option == 1.0f){
+        vec3 normal_pixel = texture( u_normal_map, uv ).xyz; 
+        N = normalize(perturbNormal( N, v_world_position, normal_pixel, v_uv));
+    }
     
     light = multipass(N, light, color, v_world_position);
 

@@ -201,7 +201,13 @@ void EntityMesh::renderWithLights(Camera* camera) {
 	shader->setUniform("u_alpha", 30.0f);
 	shader->setUniform("u_specular", 0.2f);
 	shader->setUniform("u_ambient_light", StageManager::instance->ambient_night);
-
+	
+	if (material.normalMap)
+	{
+		shader->setUniform("u_normal_map", material.normalMap, 1);
+		shader->setUniform("u_normal_option", 1.0f);
+	}
+	else shader->setUniform("u_normal_option", 0);
 	GameStage::lightToShader(GameStage::instance->mainLight, shader);
 	/*for (Light* light : GameStage::instance->lights) {
 		GameStage::lightToShader(light, shader);
