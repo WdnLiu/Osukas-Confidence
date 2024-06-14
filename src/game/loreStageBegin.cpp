@@ -351,6 +351,8 @@ LoreStageBegin::LoreStageBegin()
 	Audio::Get("data/audio/loredump/maolixi4.mp3");
 	Audio::Get("data/audio/loredump/osuka1.mp3");
 	Audio::Get("data/audio/loredump/osuka2.mp3");
+	Audio::Get("data/audio/loredump/storybgm.flac");
+	Audio::Get("data/audio/loredump/bgm.flac");
 }
 
 void LoreStageBegin::render()
@@ -487,7 +489,17 @@ void LoreStageBegin::update(double seconds_elapsed)
 
     if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 102) {
         StageManager::instance->transitioning = true;
-    }
+		Audio::Stop(bgmusic);
+    } 
+
+	if (time > 22 && !playingbgm) {
+		bgmusic = Audio::Play("data/audio/loredump/bgm.flac", 0.10);
+		playingbgm = true;
+	}		
+	if (time > 8 && !playingbgm1) {
+		bgmusic = Audio::Play("data/audio/loredump/bgm1.flac", 0.18);
+		playingbgm1 = true;
+	}
 
 	seconds_elapsed *= timemultiplier;
 

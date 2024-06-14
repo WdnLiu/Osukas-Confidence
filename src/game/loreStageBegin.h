@@ -1,6 +1,8 @@
 #pragma once
 #include "stage.h"
+#include "framework/audio.h"
 #include <graphics/render_to_texture.h>
+
 
 struct Font {
     Texture* font;
@@ -55,6 +57,10 @@ class LoreStageBegin : Stage
 {
 public:
     LoreStageBegin();
+
+    HCHANNEL bgmusic;
+    bool playingbgm = false;
+    bool playingbgm1 = false;
 
     std::vector<Text> texts;
     std::vector<ColorTransition> transitions;
