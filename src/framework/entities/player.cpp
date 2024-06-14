@@ -134,8 +134,8 @@ void Player::dash(float delta_time, float dash_duration = 1, float invul_duratio
 }
 
 void Player::jump(float delta_time) {
-	if (grounded && stamina > 30) {
-		stamina -= 30;
+	if (grounded && stamina > 50) {
+		staminadec -= 50;
 		v_spd = JUMP_SPD;
 		timer_jump = Game::instance->time;
 		grounded = false;
@@ -319,6 +319,51 @@ void Player::chargingShot(Camera* camera) {
 
 void Player::renderWithLights(Camera* camera) {
 
+	//int width = Game::instance->window_width;
+	//int height = Game::instance->window_height;
+	Stage* stage = StageManager::instance->currStage;
+	//bool visible = true;
+	//Vector3 pos3d = getPositionGround();
+	//Vector2 position;
+	//Vector3 pos = camera->project(pos3d, width, height);
+	//std::cout << pos.x << " " << pos.y << " " << pos.z << std::endl;
+	//if (pos.z < 0.0f || pos.z > 1.0f) {
+	//	visible = true;
+	//	pos.y = height - pos.y;
+	//	position = Vector2(pos.x, pos.y);
+	//}
+	//else {
+	//	pos.y = height - pos.y;
+	//	position = Vector2(pos.x, pos.y);
+	//}
+
+	//Vector2 _size = Vector2(100, 100);
+	////float max_dist = 5.0f;
+	////float dist = clamp(stage->camera->eye.distance(pos3d), 0.01f, max_dist);
+	////_size *= 1.f - (dist / max_dist);
+
+	//if (!staminashader) {
+	//	staminashader = Shader::Get("data/shaders/hud2.vs", "data/shaders/hud2.fs");
+	//}
+
+	//staminashader->enable();
+
+	//staminashader->setUniform("u_viewprojection", stage->camera2D->viewprojection_matrix);
+	//staminashader->setUniform("u_color", Vector3(0, 1, 0));
+	//staminashader->setUniform("u_percentage", stamina / 300);
+	//staminashader->setUniform("u_decrease", staminadec / 300);
+
+	//Mesh quad;
+	//quad.createQuad(position.x, height - position.y - 30, 100, 10, false);
+	////quad.createQuad(500, 500, 1000, 100, true);
+	//quad.render(GL_TRIANGLES);
+
+	//staminashader->disable();
+
+
+
+
+
 	bool time = (Game::instance->time - timer_charge[bt]) > charge_cooldown[bt];
 	// Render Bullets
 	for (int i = bullets.size()-1; i >= 0; i--) 
@@ -349,26 +394,27 @@ void Player::renderWithLights(Camera* camera) {
 
 	flat_shader->disable();
 
-	if (!staminashader) {
-		staminashader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture2.fs");
-	}
 
-	//staminashader->enable();
 
 	//Matrix44 stam = model;
 	//stam.setTranslation(Vector3(model.getTranslation().x, ground_y + 0.1, model.getTranslation().z));
 
-	//staminashader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	//staminashader->setUniform("u_model", stam);
-	//staminashader->setUniform("u_color", Vector4(0,1,0,1));
-	//staminashader->setUniform("u_percentage", 1);
-	//staminashader->setUniform("u_decrease", 0);
-	//
-	//
+	//staminashader->enable();
 
-	//staminabar.render(GL_TRIANGLES);
+	//staminashader->setUniform("u_color", Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+	//staminashader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	//staminashader->setUniform("u_model", squash);
+
+	//staminabar->render(GL_TRIANGLES);
 
 	//staminashader->disable();
+
+
+
+
+
+
+
 
 
 
@@ -406,6 +452,24 @@ void Player::renderWithLights(Camera* camera) {
 
 	// Disable shader after finishing rendering
 	shader->disable();
+
+
+	staminashader->enable();
+
+	Matrix44 stam = model;
+	stam.setTranslation(Vector3(model.getTranslation().x, ground_y + 0.05, model.getTranslation().z));
+	stam.rotate(stam.getYawRotationToAimTo(stage->enemy->getPosition()) - PI, Vector3::UP);
+
+	staminashader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	staminashader->setUniform("u_model", stam);
+	staminashader->setUniform("u_color", Vector4(0, 1, 0, 1));
+	staminashader->setUniform("u_percentage", stamina / 300);
+	staminashader->setUniform("u_decrease", staminadec / 300);
+	//flat_shader->setTexture("u_texture", staminatext, 0);
+
+	staminabar->render(GL_TRIANGLES);
+
+	staminashader->disable();
 
 	dir.render(camera);
 	vec.render(camera);
@@ -573,6 +637,8 @@ float Player::updateSubframe(float delta_time) {
 
 	//stamina += ((stamina) + 1) * delta_time;
 	stamina += 20 * delta_time;
+	stamina += staminadec * delta_time * 10;
+	staminadec -= staminadec * delta_time * 10;
 	stamina = clamp(stamina, 0, 300);
 
 	std::vector<sCollisionData> collisions;
@@ -718,7 +784,7 @@ void Player::update(float delta_time) {
 	float dist = clamp((playerpos.distance(enemypos) / 10) - 0.2f, 0.2, 2);
 	vec.model.scale(Vector3(1, 1, dist));
 
-	vec.model.translateGlobal(vec.model.frontVector().normalize() + Vector3(0, 0.1 - (_m.getTranslation().y - ground_y), 0));
+	vec.model.translateGlobal(vec.model.frontVector().normalize() + Vector3(0, 0.2 - (_m.getTranslation().y - ground_y), 0));
 
 	float dot = vec.model.frontVector().normalize().dot(dir.model.frontVector());
 	bool enough_mana = (mana > shoot_cost[bt]);
