@@ -12,13 +12,13 @@ HCHANNEL bgmusic;
 StageManager::StageManager()
 {
 	ambient_night = Vector3(0.15, 0.15, 0.25).normalize();
-	ambient_day = Vector3(0.15, 0.15, 0.25).normalize();
+	ambient_day   = Vector3(0.75, 0.65, 0.25).normalize();
 
 	stages["IntroStage"] = (Stage*) new IntroStage();
-	stages["GameStage"] = (Stage*) new GameStage();
-	stages["LoreStageBegin"] = (Stage*) new LoreStageBegin(LoreStageBegin::INTRO);
+	stages["GameStage"]  = (Stage*) new GameStage();
+	stages["LoreStageBegin"]  = (Stage*) new LoreStageBegin(LoreStageBegin::INTRO);
 	stages["GoodEndingStage"] = (Stage*) new LoreStageBegin(LoreStageBegin::GOODENDING);
-	stages["BadEndingStage"] = (Stage*) new LoreStageBegin(LoreStageBegin::BADENDING);
+	stages["BadEndingStage"]  = (Stage*) new LoreStageBegin(LoreStageBegin::BADENDING);
 
 	transitioning = false;
 

@@ -41,6 +41,7 @@ Matrix44 camera_support;
 Mesh* quad;
 
 Texture* cubemap = new Texture();
+Texture* cubemap2 = new Texture();
 
 Shader* image = NULL;
 Texture* sus;
@@ -373,13 +374,20 @@ GameStage::GameStage()
 		"data/textures/skybox/front.png",
 		"data/textures/skybox/back.png"
 		});
+	cubemap2->loadCubemap("day", {
+		"data/textures/daySky/right.png",
+		"data/textures/daySky/left.png",
+		"data/textures/daySky/bottom.png",
+		"data/textures/daySky/top.png",
+		"data/textures/daySky/front.png",
+		"data/textures/daySky/back.png"
+		});
+
 	cube = new Mesh();
 	cube->createCube();
 
 
 	player->type = PLAYER;
-
-
 
 	anxiety = 30;
 
@@ -402,9 +410,8 @@ GameStage::GameStage()
 	Audio::Get("data/audio/dash_0.wav");
 	Audio::Get("data/audio/bgm.mp3", BASS_SAMPLE_LOOP);
 
-	
-
 	renderFBO = NULL;
+	cpy = NULL;
 	
 	mainLight = new Light(eLightType::DIRECTIONAL);
 	mainLight->model.setTranslation(0, 20, 10);
@@ -412,6 +419,9 @@ GameStage::GameStage()
 	centerLight->model.setTranslation(0, 0, 0);
 
 	lights.push_back(mainLight); lights.push_back(centerLight);
+
+	currentAmbient = Vector3(0.25, 0.25, 0.45);
+	currSkyBox = cubemap;
 }
 
 
@@ -560,6 +570,24 @@ void GameStage::renderPic(Vector2 position, Vector2 size, Texture* diffuse) {
 	glDisable(GL_BLEND);
 }
 
+void GameStage::flashBang()
+{
+	float width = Game::instance->window_width, height = Game::instance->window_height;
+	Shader* shader = Shader::Get("data/shaders/hud.vs", "data/shaders/flash.fs");
+	shader->enable();
+
+	if (!cpy) {
+		cpy = new RenderToTexture();
+		cpy->create(width, height);
+		renderFBO->copyTo(cpy);
+	}
+	shader->setUniform("time", Game::instance->time - transitionStart);
+	shader->setUniform("resolution", Vector2(width, height));
+	shader->setUniform("u_texture", cpy, 0);
+
+	cpy->toViewport(shader);
+}
+
 void GameStage::generateShadowMaps(Camera* camera)
 {
 	int shadowMapSize = 1024;
@@ -658,35 +686,39 @@ void GameStage::render(void)
 	}
 	renderFBO->enable();
 	// Set the clear color (the background color)
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	if (transitioningPhase) {
+		flashBang();
+		return;
+	}
+	else {
+		glClearColor(0.0, 0.0, 0.0, 1.0);
 
+		// Clear the window and the depth buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// Set the camera as default
+		camera->enable();
 
-	// Clear the window and the depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		renderSkybox(currSkyBox);
 
-	// Set the camera as default
-	camera->enable();
+		//// Set flags
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
 
-	renderSkybox(cubemap);
+		//drawGrid();
 
-	//// Set flags
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
+		root_opaque->renderWithLights(camera);
 
-	//drawGrid();
+		std::sort(root_transparent->children.begin(), root_transparent->children.end(), compareFunction);
 
-	root_opaque->renderWithLights(camera);
+		enemy->renderWithLights(camera);
+		player->renderWithLights(camera);
 
-	std::sort(root_transparent->children.begin(), root_transparent->children.end(), compareFunction);
+		root_transparent->renderWithLights(camera);
 
-	enemy->renderWithLights(camera);
-	player->renderWithLights(camera);
-
-	root_transparent->renderWithLights(camera);
-
-	glDisable(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
+	}
 
 	renderFBO->disable();
 
@@ -722,6 +754,25 @@ bool GameStage::compareFunction(const Entity* e1, const Entity* e2) {
 
 void GameStage::update(double seconds_elapsed)
 {
+	if (Input::isKeyPressed(SDL_SCANCODE_L)) anxiety = 255*0.7;
+
+	if (transitioningPhase) {
+		if (Game::instance->time - transitionStart >= 1)
+		{
+			transitioningPhase = false;
+			secondPhase = true;
+			currentAmbient = Vector3(0.7, 0.7, 0.8);
+			currSkyBox = cubemap2;
+		}
+		return;
+	}
+
+	if (!secondPhase && anxiety >= 255*0.6)
+	{
+		transitioningPhase = true;
+		transitionStart = Game::instance->time;
+	}
+
 	if (anxiety_dt != 0) {
 		anxiety += anxiety_dt * seconds_elapsed * 10;
 		anxiety_dt -= anxiety_dt * seconds_elapsed * 10;
@@ -893,4 +944,10 @@ void GameStage::resize()
 
 	if (!renderFBO) renderFBO = new RenderToTexture();
 	renderFBO->create(width, height);
+
+	if (!cpy) {
+		cpy = new RenderToTexture();
+	}
+	cpy->create(width, height);
+
 }
