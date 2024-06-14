@@ -1,6 +1,8 @@
 #pragma once
 #include "stage.h"
 
+#define TRANSITION_TIME 5
+
 class Audio;
 class RenderToTexture;
 class FBO;
@@ -12,11 +14,20 @@ public:
 	static GameStage* instance;
 	float zoom = 5.f;
 
+	Vector3 currentAmbient = NULL;
+	Texture* currSkyBox;
+
 	GameStage();
 
 	//main functions
 	void render(void) override;
 	void update(double seconds_elapsed) override;
+
+	//Second phase transitioning variables
+	float transitionStart = 0;
+	bool transitioningPhase = false;
+	bool secondPhase = false;
+	void flashBang();
 
 	float trees_shoot = 0;
 	float interval = 10;
@@ -32,6 +43,7 @@ public:
 	std::vector<Light*> lights;
 
 	RenderToTexture* renderFBO;
+	RenderToTexture* cpy;
 	FBO* shadowMapFBO;
 
 
@@ -70,4 +82,6 @@ public:
 	bool parseScene(const char* filename);
 
 	void resize() override;
+
+	void switchstage(int flag) override;
 };

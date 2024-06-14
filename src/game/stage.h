@@ -61,4 +61,6 @@ public:
 	virtual COL_TYPE sphere_collided(Entity* root, std::vector<sCollisionData>& collisions, Vector3 position, float radius, COL_TYPE collision_type = SCENARIO, bool check = false) { return COL_TYPE::NONE; };
 
 	virtual void resize();
+
+	virtual void switchstage(int flag) {}
 };

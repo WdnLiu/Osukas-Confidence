@@ -14,7 +14,7 @@ void EntityMesh::render(Camera* camera) {
 		return;
 	}
 	if (type == BORDER) {
-		std::cout << "is border! ";
+		//std::cout << "is border! ";
 		return;
 	}
 	std::vector<Matrix44>* final_models = &models;
@@ -22,7 +22,7 @@ void EntityMesh::render(Camera* camera) {
 
 	int is_border = (type & BORDER);
 	if (is_border != 0) {
-		std::cout << "is border! ";
+		//std::cout << "is border! ";
 		return;
 	}
 
@@ -200,8 +200,14 @@ void EntityMesh::renderWithLights(Camera* camera) {
 	shader->setUniform("eye", camera->eye);
 	shader->setUniform("u_alpha", 30.0f);
 	shader->setUniform("u_specular", 0.2f);
-	shader->setUniform("u_ambient_light", StageManager::instance->ambient_night);
-
+	shader->setUniform("u_ambient_light", GameStage::instance->currentAmbient);
+	
+	if (material.normalMap)
+	{
+		shader->setUniform("u_normal_map", material.normalMap, 1);
+		shader->setUniform("u_normal_option", 1.0f);
+	}
+	else shader->setUniform("u_normal_option", 0);
 	GameStage::lightToShader(GameStage::instance->mainLight, shader);
 	/*for (Light* light : GameStage::instance->lights) {
 		GameStage::lightToShader(light, shader);

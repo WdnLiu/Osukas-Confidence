@@ -45,6 +45,17 @@ public:
 	};
 
 
+	void clearInstances() {
+		this->spawn_time.clear();
+
+		this->models.clear();
+		this->speeds.clear();
+		this->accels.clear();
+		this->angular_speeds.clear();
+		this->angular_accels.clear();
+	}
+
+
 	void addRing(Matrix44 model, float speed, float accel = 0, float angular_speed = 0, float angular_accel = 0, float rad = 1, int count = 6) {
 		for (int i = 0; i < count; i++) {
 			Matrix44 _m = model;

@@ -8,4 +8,6 @@ public:
 
     void render(void) override;
     void update(double seconds_elapsed) override;
+
+    void switchstage(int flag) override {}
 };

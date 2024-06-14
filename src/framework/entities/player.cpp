@@ -134,7 +134,8 @@ void Player::dash(float delta_time, float dash_duration = 1, float invul_duratio
 }
 
 void Player::jump(float delta_time) {
-	if (grounded) {
+	if (grounded && stamina > 30) {
+		stamina -= 30;
 		v_spd = JUMP_SPD;
 		timer_jump = Game::instance->time;
 		grounded = false;
@@ -348,6 +349,27 @@ void Player::renderWithLights(Camera* camera) {
 
 	flat_shader->disable();
 
+	if (!staminashader) {
+		staminashader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture2.fs");
+	}
+
+	//staminashader->enable();
+
+	//Matrix44 stam = model;
+	//stam.setTranslation(Vector3(model.getTranslation().x, ground_y + 0.1, model.getTranslation().z));
+
+	//staminashader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	//staminashader->setUniform("u_model", stam);
+	//staminashader->setUniform("u_color", Vector4(0,1,0,1));
+	//staminashader->setUniform("u_percentage", 1);
+	//staminashader->setUniform("u_decrease", 0);
+	//
+	//
+
+	//staminabar.render(GL_TRIANGLES);
+
+	//staminashader->disable();
+
 
 
 	anim = animation_pool[current_animation];
@@ -364,6 +386,8 @@ void Player::renderWithLights(Camera* camera) {
 	shader->enable();
 	shader->setUniform("u_color", targetable ? material.color : Vector4(1,1,1,0.1 + 0.9 * (can_be_hit) * ((int)(Game::instance->time * 10) % 2)));
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+
+	shader->setUniform("u_normal_option", 0);
 
 	shader->setUniform("eye", camera->eye);
 	shader->setUniform("u_alpha", 30.0f);
@@ -388,6 +412,11 @@ void Player::renderWithLights(Camera* camera) {
 	dir.render(camera);
 	vec.render(camera);
 
+
+
+
+
+
 	glDisable(GL_BLEND);
 	glFrontFace(GL_CCW);
 	glDisable(GL_CULL_FACE);
@@ -401,6 +430,10 @@ void Player::renderWithLights(Camera* camera) {
 	}
 	bullets_normal.render(camera);
 	bullets_auto.render(camera);
+
+
+
+
 
 
 
@@ -540,6 +573,10 @@ float Player::updateSubframe(float delta_time) {
 	mana += (DEFAULT_COST - 1) * delta_time / (DEFAULT_FIRERATE);
 	mana = clamp(mana, 0, 300);
 
+	//stamina += ((stamina) + 1) * delta_time;
+	stamina += 20 * delta_time;
+	stamina = clamp(stamina, 0, 300);
+
 	std::vector<sCollisionData> collisions;
 	std::vector<sCollisionData> ground;
 
@@ -570,8 +607,9 @@ float Player::updateSubframe(float delta_time) {
 		}
 	}
 	grounded = touching_ground;
-	if (Input::isKeyPressed(SDL_SCANCODE_SPACE) && (grounded || ((time - timer_jump) < .3)))
+	if (Input::isKeyPressed(SDL_SCANCODE_SPACE) && (grounded || ((time - timer_jump) < .3))) {
 		jump(delta_time);
+	}
 	else
 		jumping = false;
 
@@ -585,6 +623,7 @@ float Player::updateSubframe(float delta_time) {
 }
 
 void Player::update(float delta_time) {
+	std::cout << stamina << "\n";
 	Stage* stage = StageManager::instance->currStage;
 	if (stage->mouse_locked) model.rotate(Input::mouse_delta.x * (0.005f - (timer_bullet_general < knockback_time[bt]) * (0.0045f)), Vector3(0.0f, -1.0f, 0.0f));
 	float total_spd;

@@ -165,15 +165,9 @@ void Enemy::update(float time_elapsed)
 
 	Vector3 player_center = getPosition() + Vector3(0, 1.2, 0);
 
+
 	if (looking_at_player) {
-
-		Vector3 pPosition = stage->player->getPosition();
-
-		Vector3 front = pPosition - player_center;
-		front.y = 0;
-
-		//TODO: fix enemy pointing at player
-		this->model.setFrontAndOrthonormalize(front);
+		this->model.rotate(this->model.getYawRotationToAimTo(stage->player->model.getTranslation()), Vector3::UP);
 	}
 
 	//player_center.y += PLAYER_HEIGHT;
