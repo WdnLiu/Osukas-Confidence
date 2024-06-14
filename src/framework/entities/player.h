@@ -105,8 +105,10 @@ public:
 
 	HCHANNEL charge_channel;
 	
-	Mesh staminabar;
+	Mesh* staminabar;
+	Texture* staminatext;
 	Shader* staminashader;
+	float staminadec = 0;
 
 	// TODO: Hitbox stuff 
 	bool can_be_hit = true;
@@ -126,9 +128,9 @@ public:
 		loadTextures();
 		loadAnims();
 
-		dir.mesh = Mesh::Get("data/meshes/directon.obj");
+		dir.mesh = Mesh::Get("data/meshes/direction2.obj");
 		dir.material.diffuse = Texture::Get("data/meshes/directon.mtl");
-		dir.material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/flat.fs");
+		dir.material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 		dir.material.color = Vector4(1);
 
 		vec.mesh = Mesh::Get("data/meshes/vec.obj");
@@ -136,9 +138,11 @@ public:
 		vec.material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 		vec.material.color = Vector4(0.5,0.5,1,0.2);
 
-		//staminabar = Mesh::Get("data/meshes/staminabar.obj");
-		staminabar.createQuad(1, 1, 10, 10, false);
-		staminashader = NULL;
+		//staminabar = Mesh::Get("data/meshes/nadada3.obj");
+		staminabar = Mesh::Get("data/meshes/donus.obj");
+		staminatext = Texture::Get("data/meshes/Textures/white.png");
+		staminashader = Shader::Get("data/shaders/basic2.vs", "data/shaders/texture2.fs");
+
 	};
 	Player(Mesh* mesh, const Material& material, const std::string& name = "", float speed = 0, float mana = DEFAULT_MANA) {
 		this->mesh = mesh;
