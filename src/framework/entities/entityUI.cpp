@@ -101,6 +101,7 @@ void EntityUI::update(float delta_time) {
 		}
 		Stage* stage = StageManager::instance->currStage;
 		material.color = Vector4(0.7,0.7,0.7,1);
+		float percentage;
 		if (Input::isMousePressed(SDL_BUTTON_LEFT) && !stage->mouse_clicked) {
 			stage->mouse_clicked = true;
 			switch (button_id) {
@@ -114,11 +115,32 @@ void EntityUI::update(float delta_time) {
 				stage->options = false;
 				break;
 			case SensBar:
-				float percentage = (mouse_pos.x - (position.x - size.x * 0.5) ) / size.x;
+				percentage = (mouse_pos.x - (position.x - size.x * 0.5) ) / size.x;
 				std::cout << percentage;
 				StageManager::instance->sensitivity = percentage * 2;
 				break;
+			case KeyWalk:
+				stage->selected_keybind = StageManager::WALK;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyJump:
+				stage->selected_keybind = StageManager::JUMP;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyDash:
+				stage->selected_keybind = StageManager::DASH;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyShoot:
+				stage->selected_keybind = StageManager::SHOOT;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyAuto:
+				stage->selected_keybind = StageManager::AUTO;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
 			}
+
 		}
 		else if (Input::isMousePressed(SDL_BUTTON_LEFT)) {
 			stage->mouse_clicked = true;

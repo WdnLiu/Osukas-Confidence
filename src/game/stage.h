@@ -9,6 +9,7 @@
 #include "framework/utils.h"
 #include "framework/entities/entity.h"
 #include "framework/entities/entityCollider.h"
+#include "game/StageManager.h"
 
 class Enemy;
 class Player;
@@ -22,11 +23,15 @@ public:
 	int backgmusic;
 	int othersounds;
 
-	bool keybind_walk;
-	bool keybind_jump;
-	bool keybind_dash;
-	bool keybind_shoot;
-	bool keybind_auto;
+	bool keybind_walk = false;
+	bool keybind_jump = false;
+	bool keybind_dash = false;
+	bool keybind_shoot = false;
+	bool keybind_auto = false;
+
+	std::vector<bool> keybinds = { keybind_walk, keybind_jump, keybind_dash, keybind_shoot, keybind_auto };
+
+	StageManager::keys selected_keybind = StageManager::WALK;
 
 	//some vars
 	Entity* root_opaque;

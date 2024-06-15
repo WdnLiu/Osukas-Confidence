@@ -171,7 +171,21 @@ IntroStage::IntroStage()
 	EntityUI* senst = new EntityUI(pos, size, material, height, buttontype);
 	optionbuttons.push_back(senst);
 
+	//Material squaremat;
+	//squaremat.color = Vector4(0,0,0,0.5);
+	//squaremat.diffuse = Texture::Get("data/textures/menu/bar.PNG");
+	//squaremat.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	//pos = Vector2(width / 2, height / 2), size = Vector2(width,height);
+	//bigblacksquare = EntityUI(pos, size, squaremat, height, UndefinedButton);
 
+	for (int i = 0; i < 5; i++) {
+		pos = Vector2(width / 2 - 120 + 60 * i, height / 2 - 200), size = Vector2(50, 50);
+		material.diffuse = Texture::Get("data/textures/menu/playbutton.PNG");
+		material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+		buttontype = (eButtonID) (KeyWalk + i);
+		EntityUI* key1 = new EntityUI(pos, size, material, height, buttontype);
+		optionbuttons.push_back(key1);
+	}
 
 	Audio::Get("data/audio/menu/menubgm.mp3", BASS_SAMPLE_LOOP);
 }
@@ -180,6 +194,7 @@ IntroStage::IntroStage()
 
 void IntroStage::render()
 {
+	if (StageManager::instance->transitioning) return;
     // Set the clear color (the background color)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -209,6 +224,11 @@ void IntroStage::render()
 		for (int i = 0; i < optionbuttons.size(); i++) {
 			optionbuttons[i]->render(camera2D);
 		}
+
+		//if (keybinds[selected_keybind]) {
+		//	bigblacksquare.color = Vector4(0, 0, 0, 0.5);
+		//	bigblacksquare.render(camera2D);
+		//}
 	}
 	else {
 		for (int i = 0; i < buttons.size(); i++) {
@@ -217,18 +237,26 @@ void IntroStage::render()
 	}
 
 
+	for (bool kb : keybinds) {
+		std::cout << kb << " ";
+	}
+	std::cout << std::endl;
+
     //drawText(Game::instance->window_width / 2.0f, Game::instance->window_height / 2.0f, "Press the key A to continue!", Vector3(((int) Game::instance->time)%2), 5);
 }
 
 void IntroStage::update(double seconds_elapsed)
 {
+	if (StageManager::instance->transitioning) return;
     if (play_button_pressed) {
         StageManager::instance->transitioning = true;
     }
 
 	if (options) {
-		for (int i = 0; i < optionbuttons.size(); i++) {
-			optionbuttons[i]->update(seconds_elapsed);
+		if (!keybinds[selected_keybind]) {
+			for (int i = 0; i < optionbuttons.size(); i++) {
+				optionbuttons[i]->update(seconds_elapsed);
+			}
 		}
 	}
 	else {
@@ -261,6 +289,11 @@ void IntroStage::onKeyDown(SDL_KeyboardEvent event)
 	{
 	case SDLK_ESCAPE: Game::instance->must_exit = true; break; //ESC key, kill the app
 	}
+
+	//if (keybinds[selected_keybind]) {
+	//	*StageManager::instance->keyset[selected_keybind] = event.keysym.sym;
+	//	keybinds[selected_keybind] = false;
+	//}
 }
 
 void IntroStage::onMouseButtonUp(SDL_MouseButtonEvent event)

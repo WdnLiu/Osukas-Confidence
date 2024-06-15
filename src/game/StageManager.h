@@ -19,13 +19,21 @@ public:
 
 	float sensitivity = 1;
 
-	SDL_Scancode k_walk = SDL_SCANCODE_W;
-	SDL_Scancode k_jump = SDL_SCANCODE_SPACE;
-	SDL_Scancode k_shoot = SDL_SCANCODE_Q;
-	SDL_Scancode k_dash = SDL_SCANCODE_LSHIFT;
+	enum keys : uint8 {
+		WALK,
+		JUMP,
+		SHOOT,
+		DASH,
+		AUTO
+	};
 
-	SDL_Keycode kc_auto = SDLK_e;
+	SDL_Keycode k_walk = SDLK_w;
+	SDL_Keycode k_jump = SDLK_SPACE;
+	SDL_Keycode k_shoot = SDLK_q;
+	SDL_Keycode k_dash = SDLK_LSHIFT;
+	SDL_Keycode k_auto = SDLK_e;
 
+	std::vector<SDL_Keycode*> keyset = {&k_walk, &k_jump, &k_shoot, &k_dash, &k_auto};
 
 	StageManager();
 

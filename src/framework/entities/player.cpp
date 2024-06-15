@@ -594,7 +594,7 @@ float Player::updateSubframe(float delta_time) {
 	Stage* stage = StageManager::instance->currStage;
 	float time = Game::instance->time;
 	direction = model.frontVector();
-	if ((Input::isKeyPressed(StageManager::instance->k_walk) && !dashing /* && stage->mouse_locked*/)) m_spd = DEFAULT_SPD;
+	if ((Input::isKeyPressed( SDL_GetScancodeFromKey(StageManager::instance->k_walk)) && !dashing /* && stage->mouse_locked*/)) m_spd = DEFAULT_SPD;
 
 	//direction = Vector3(0.0f);
 
@@ -670,7 +670,7 @@ float Player::updateSubframe(float delta_time) {
 		}
 	}
 	grounded = touching_ground;
-	if (Input::isKeyPressed(StageManager::instance->k_jump) && (grounded || ((time - timer_jump) < .3))) {
+	if (Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_jump)) && (grounded || ((time - timer_jump) < .3))) {
 		jump(delta_time);
 	}
 	else
@@ -702,16 +702,16 @@ void Player::update(float delta_time) {
 		box_cam += (box_dist - 1) * (getPositionGround() - box_cam) * delta_time;
 	}
 	timer_bullet_general = Game::instance->time - timer_bullet[bt];
-	if (Input::wasKeyPressed(StageManager::instance->k_dash) || dashing) {
+	if (Input::wasKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_dash)) || dashing) {
 		dash(delta_time);
 	}
-	if (Input::wasKeyPressed(StageManager::instance->k_shoot)) {
+	if (Input::wasKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_shoot))) {
 		if (mana + 10 < shoot_cost[bt]) {
 			Audio::Play("data/audio/incorrect.mp3");
 			return;
 		}
 	}
-	if (Input::isKeyPressed(StageManager::instance->k_shoot)) {
+	if (Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_shoot))) {
 		//std::cout << std::endl << "\ncharge:\n" << charge_cooldown[bt] << std::endl;
 		if (charge_cooldown[bt] && (mana - shoot_cost[bt]) > 0) shootCharge(bt);
 		else shoot(bt);
@@ -835,7 +835,7 @@ void Player::onKeyDown(SDL_KeyboardEvent event)
 	if (event.keysym.sym == SDLK_SPACE && grounded) {
 		timer_jump = Game::instance->time;
 	}
-	if (event.keysym.sym == StageManager::instance->kc_auto) {
+	if (event.keysym.sym == StageManager::instance->k_auto) {
 		autoshoot = !autoshoot;
 	}
 }

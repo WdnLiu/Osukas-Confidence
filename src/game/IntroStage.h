@@ -10,6 +10,9 @@ public:
     std::vector<EntityUI*> buttons;
     std::vector<EntityUI*> optionbuttons;
 
+
+    EntityUI bigblacksquare;
+
     void renderText(Texture* font, std::string text, float interval, Vector2 position, float fontsize, Vector2 tilesize, Vector2 textbox);
     void renderLetter(Texture* font, Vector2 tileSize, char letter, Vector2 position, Vector2 size);
 
