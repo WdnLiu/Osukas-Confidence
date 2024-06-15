@@ -9,6 +9,8 @@ public:
 
     std::vector<EntityUI*> buttons;
 
+    void onKeyDown(SDL_KeyboardEvent event);
+
     void render(void) override;
     void update(double seconds_elapsed) override;
 

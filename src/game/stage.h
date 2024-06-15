@@ -42,11 +42,15 @@ public:
 	float anxiety;
 	float anxiety_dt = 0;
 
+	float sensitivity = 1;
+
 	std::string nextStage;
 
 	Camera* camera; //our global camera
 	Camera* camera2D; //our global camera
 	bool mouse_locked; //tells if the mouse is locked (not seen)
+
+	bool paused = false;
 
 	//events
 	virtual void onKeyDown(SDL_KeyboardEvent event) {};

@@ -51,6 +51,7 @@ public:
 	FBO* shadowMapFBO;
 
 
+
 	float enoughmanatimer = 0;
 	float enoughmana;
 

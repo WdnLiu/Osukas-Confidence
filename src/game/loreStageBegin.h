@@ -107,6 +107,8 @@ public:
     void render(void) override;
     void update(double seconds_elapsed) override;
 
+    void onKeyDown(SDL_KeyboardEvent event);
+
     void switchstage(int flag) override;
 
     void resize() override;

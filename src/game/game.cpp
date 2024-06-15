@@ -55,7 +55,6 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 	Stage* stage = StageManager::instance->currStage;
 	switch (event.keysym.sym)
 	{
-	case SDLK_ESCAPE: must_exit = true; break; //ESC key, kill the app
 	case SDLK_F1: Shader::ReloadAll(); break;
 	}
 	stage->onKeyDown(event);

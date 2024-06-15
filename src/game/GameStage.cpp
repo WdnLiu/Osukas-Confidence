@@ -686,6 +686,11 @@ void GameStage::lightToShader(Light* light, Shader* shader)
 //what to do when the image has to be draw
 void GameStage::render(void)
 {
+	if (StageManager::instance->transitioning) return;
+	if (paused) {
+
+		return;
+	}
 	float width = Game::instance->window_width, height = Game::instance->window_height;
 	generateShadowMaps(camera);
 	if (!renderFBO) {
@@ -794,6 +799,7 @@ bool GameStage::compareFunction(const Entity* e1, const Entity* e2) {
 
 void GameStage::update(double seconds_elapsed)
 {
+
 	if (transitioningPhase) {
 		if (!secondPhase) {
 			camera->lookAt(enemy->getPosition() + 10 * enemy->getFront() + Vector3(0,6,0), enemy->getPosition(), camera->up);
@@ -855,6 +861,8 @@ void GameStage::update(double seconds_elapsed)
 		}
 		return;
 	}
+
+	if (paused) return;
 
 	if (Input::isKeyPressed(SDL_SCANCODE_L)) anxiety += 100 * seconds_elapsed;
 
@@ -979,6 +987,15 @@ void GameStage::onKeyDown(SDL_KeyboardEvent event)
 		SDL_ShowCursor(!mouse_locked);
 		SDL_SetRelativeMouseMode((SDL_bool)(mouse_locked));
 	}
+
+	switch (event.keysym.sym)
+	{
+	case SDLK_ESCAPE: nextStage = "IntroStage"; StageManager::instance->transitioning = true; //ESC key, kill the app
+	}
+	//switch (event.keysym.sym)
+	//{
+	//case SDLK_ESCAPE: paused = !paused; //ESC key, kill the app
+	//}
 }
 
 void GameStage::onKeyUp(SDL_KeyboardEvent event)

@@ -94,3 +94,12 @@ void IntroStage::switchstage(int flag) {
 		SDL_SetRelativeMouseMode((SDL_bool)(Game::instance->mouse_locked));
 	}
 }
+
+//Keyboard event handler (sync input)
+void IntroStage::onKeyDown(SDL_KeyboardEvent event)
+{
+	switch (event.keysym.sym)
+	{
+	case SDLK_ESCAPE: Game::instance->must_exit = true; break; //ESC key, kill the app
+	}
+}
