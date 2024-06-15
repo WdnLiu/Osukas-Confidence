@@ -125,6 +125,9 @@ IntroStage::IntroStage()
 {
 	font = Texture::Get("data/textures/fontpool.PNG");
 
+
+	keynames = { "Walk", "Jump", "Dash", "Shoot", "AutoShoot" };
+
     // Create our camera
 	camera = new Camera();
 	camera->lookAt(Vector3(0.f, 100.f, 100.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f)); //position the camera and point to 0,0,0
@@ -171,16 +174,16 @@ IntroStage::IntroStage()
 	EntityUI* senst = new EntityUI(pos, size, material, height, buttontype);
 	optionbuttons.push_back(senst);
 
-	//Material squaremat;
-	//squaremat.color = Vector4(0,0,0,0.5);
-	//squaremat.diffuse = Texture::Get("data/textures/menu/bar.PNG");
-	//squaremat.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	//pos = Vector2(width / 2, height / 2), size = Vector2(width,height);
-	//bigblacksquare = EntityUI(pos, size, squaremat, height, UndefinedButton);
+	Material squaremat;
+	squaremat.color = Vector4(0,0,0,0.5);
+	squaremat.diffuse = Texture::Get("data/textures/menu/bar.PNG");
+	squaremat.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	pos = Vector2(width / 2, height / 2), size = Vector2(width,height);
+	bigblacksquare = EntityUI(pos, size, squaremat, height, UndefinedButton);
 
 	for (int i = 0; i < 5; i++) {
-		pos = Vector2(width / 2 - 120 + 60 * i, height / 2 - 200), size = Vector2(50, 50);
-		material.diffuse = Texture::Get("data/textures/menu/playbutton.PNG");
+		pos = Vector2(width / 2 + 100, height / 2 - 250 - 120 + 60 * i), size = Vector2(250, 50);
+		material.diffuse = Texture::Get("data/textures/menu/bar.PNG");
 		material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 		buttontype = (eButtonID) (KeyWalk + i);
 		EntityUI* key1 = new EntityUI(pos, size, material, height, buttontype);
@@ -224,11 +227,23 @@ void IntroStage::render()
 		for (int i = 0; i < optionbuttons.size(); i++) {
 			optionbuttons[i]->render(camera2D);
 		}
-
-		//if (keybinds[selected_keybind]) {
-		//	bigblacksquare.color = Vector4(0, 0, 0, 0.5);
-		//	bigblacksquare.render(camera2D);
-		//}
+		for (int i = 0; i < 5; ++i) {
+			float width = Game::instance->window_width, height = Game::instance->window_height;
+			Vector2 pos = Vector2(width / 2 - 120, height / 2 - 250 - 120 + 60 * i);
+			drawText(pos.x + 110, pos.y - 10, SDL_GetKeyName(*StageManager::instance->keyset[i]), Vector3(0), 3);
+			drawText(pos.x - 100, pos.y - 10, keynames[i], Vector3(1), 3);
+		}
+		if (keybinds[selected_keybind]) {
+			bigblacksquare.color = Vector4(0, 0, 0, 0.5);
+			bigblacksquare.render(camera2D);
+		}
+		for (int i = 0; i < 5; ++i) {
+			if (i == selected_keybind) {
+				float width = Game::instance->window_width, height = Game::instance->window_height;
+				Vector2 pos = Vector2(width / 2 - 120, height / 2 - 250 - 120 + 60 * i);
+				drawText(pos.x - 100, pos.y - 10, keynames[i], Vector3(1), 3);
+			}
+		}
 	}
 	else {
 		for (int i = 0; i < buttons.size(); i++) {
@@ -290,10 +305,10 @@ void IntroStage::onKeyDown(SDL_KeyboardEvent event)
 	case SDLK_ESCAPE: Game::instance->must_exit = true; break; //ESC key, kill the app
 	}
 
-	//if (keybinds[selected_keybind]) {
-	//	*StageManager::instance->keyset[selected_keybind] = event.keysym.sym;
-	//	keybinds[selected_keybind] = false;
-	//}
+	if (keybinds[selected_keybind]) {
+		*StageManager::instance->keyset[selected_keybind] = event.keysym.sym;
+		keybinds[selected_keybind] = false;
+	}
 }
 
 void IntroStage::onMouseButtonUp(SDL_MouseButtonEvent event)

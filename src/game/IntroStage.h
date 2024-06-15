@@ -10,6 +10,8 @@ public:
     std::vector<EntityUI*> buttons;
     std::vector<EntityUI*> optionbuttons;
 
+    std::vector<std::string> keynames;
+
 
     EntityUI bigblacksquare;
 
