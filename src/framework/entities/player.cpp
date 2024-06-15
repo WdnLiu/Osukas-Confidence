@@ -112,13 +112,16 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 
 void Player::dash(float delta_time, float dash_duration = 1, float invul_duration = 0.25) {
 	if (!dashing) {
-		m_spd = 3 * DEFAULT_SPD;
-		timer_dash = Game::instance->time;
-		dashInvulnerabilityTimer = Game::instance->time;
-		dashing = true;
-		targetable = false;
-		can_be_hit = false;
-		Audio::Play("data/audio/dash_0.wav");
+		if (stamina > 30) {
+			staminadec -= 30;
+			m_spd = 3 * DEFAULT_SPD;
+			timer_dash = Game::instance->time;
+			dashInvulnerabilityTimer = Game::instance->time;
+			dashing = true;
+			targetable = false;
+			can_be_hit = false;
+			Audio::Play("data/audio/dash_0.wav");
+		}
 	}
 	else if (m_spd > DEFAULT_SPD) {
 		m_spd -= 3 * DEFAULT_SPD * delta_time / dash_duration;
@@ -134,13 +137,15 @@ void Player::dash(float delta_time, float dash_duration = 1, float invul_duratio
 }
 
 void Player::jump(float delta_time) {
-	if (grounded && stamina > 50) {
-		staminadec -= 50;
-		v_spd = JUMP_SPD;
-		timer_jump = Game::instance->time;
-		grounded = false;
-		jumping = true;
-		Audio::Play("data/audio/jump.wav");
+	if (grounded) {
+		if (stamina > 60) {
+			staminadec -= 60;
+			v_spd = JUMP_SPD;
+			timer_jump = Game::instance->time;
+			grounded = false;
+			jumping = true;
+			Audio::Play("data/audio/jump.wav");
+		}
 	}
 	else v_spd = JUMP_SPD * (1 - (2 * (Game::instance->time - timer_jump)));
 }
@@ -594,14 +599,11 @@ float Player::updateSubframe(float delta_time) {
 	Stage* stage = StageManager::instance->currStage;
 	float time = Game::instance->time;
 	direction = model.frontVector();
-	if ((Input::isKeyPressed(SDL_SCANCODE_W) ||
-		Input::isKeyPressed(SDL_SCANCODE_L) ||
-		Input::isKeyPressed(SDL_SCANCODE_A) ||
-		Input::isKeyPressed(SDL_SCANCODE_D)) && !dashing /* && stage->mouse_locked*/) m_spd = DEFAULT_SPD;
+	if ((Input::isKeyPressed( SDL_GetScancodeFromKey(StageManager::instance->k_walk)) && !dashing /* && stage->mouse_locked*/)) m_spd = DEFAULT_SPD;
 
 	//direction = Vector3(0.0f);
 
-	//if (Input::isKeyPressed(SDL_SCANCODE_W)) direction += getFront();
+	//if (Input::isKeyPressed(StageManager::instance->k_walk)) direction += getFront();
 	//if (Input::isKeyPressed(SDL_SCANCODE_S)) direction -= getFront();
 	//if (Input::isKeyPressed(SDL_SCANCODE_A)) direction += getRight();
 	//if (Input::isKeyPressed(SDL_SCANCODE_D)) direction -= getRight();
@@ -673,7 +675,7 @@ float Player::updateSubframe(float delta_time) {
 		}
 	}
 	grounded = touching_ground;
-	if (Input::isKeyPressed(SDL_SCANCODE_SPACE) && (grounded || ((time - timer_jump) < .3))) {
+	if (Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_jump)) && (grounded || ((time - timer_jump) < .3))) {
 		jump(delta_time);
 	}
 	else
@@ -691,7 +693,7 @@ float Player::updateSubframe(float delta_time) {
 void Player::update(float delta_time) {
 	//std::cout << stamina << "\n";
 	Stage* stage = StageManager::instance->currStage;
-	if (stage->mouse_locked) model.rotate(Input::mouse_delta.x * (0.005f - (timer_bullet_general < knockback_time[bt]) * (0.0045f)), Vector3(0.0f, -1.0f, 0.0f));
+	if (stage->mouse_locked) model.rotate(StageManager::instance->sensitivity*Input::mouse_delta.x * (0.005f - (timer_bullet_general < knockback_time[bt]) * (0.0045f)), Vector3(0.0f, -1.0f, 0.0f));
 	float total_spd;
 	int subframes = 1;
 	if (1 / delta_time < 60) subframes = 120 * delta_time;
@@ -705,16 +707,16 @@ void Player::update(float delta_time) {
 		box_cam += (box_dist - 1) * (getPositionGround() - box_cam) * delta_time;
 	}
 	timer_bullet_general = Game::instance->time - timer_bullet[bt];
-	if (Input::wasKeyPressed(SDL_SCANCODE_LSHIFT) || dashing) {
+	if (Input::wasKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_dash)) || dashing) {
 		dash(delta_time);
 	}
-	if (Input::wasKeyPressed(SDL_SCANCODE_Q)) {
+	if (Input::wasKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_shoot))) {
 		if (mana + 10 < shoot_cost[bt]) {
 			Audio::Play("data/audio/incorrect.mp3");
 			return;
 		}
 	}
-	if (Input::isKeyPressed(SDL_SCANCODE_Q)) {
+	if (Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_shoot))) {
 		//std::cout << std::endl << "\ncharge:\n" << charge_cooldown[bt] << std::endl;
 		if (charge_cooldown[bt] && (mana - shoot_cost[bt]) > 0) shootCharge(bt);
 		else shoot(bt);
@@ -792,9 +794,9 @@ void Player::update(float delta_time) {
 	bool enough_mana = (mana > shoot_cost[bt]);
 
 	if (dot > 0.98) {
-		dir.material.color = Vector4(0, enough_mana + (!enough_mana * 0.7), !enough_mana, 0.3);
+		dir.material.color = Vector4(0, enough_mana + (!enough_mana * 0.7), !enough_mana, 1);
 	}
-	else dir.material.color = Vector4::WHITE;
+	else dir.material.color = Vector4(enough_mana, enough_mana + (!enough_mana * 0.7), 1, 1);
 	
 }
 
@@ -838,7 +840,7 @@ void Player::onKeyDown(SDL_KeyboardEvent event)
 	if (event.keysym.sym == SDLK_SPACE && grounded) {
 		timer_jump = Game::instance->time;
 	}
-	if (event.keysym.sym == SDLK_e) {
+	if (event.keysym.sym == StageManager::instance->k_auto) {
 		autoshoot = !autoshoot;
 	}
 }

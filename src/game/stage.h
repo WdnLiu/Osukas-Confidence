@@ -9,6 +9,7 @@
 #include "framework/utils.h"
 #include "framework/entities/entity.h"
 #include "framework/entities/entityCollider.h"
+#include "game/StageManager.h"
 
 class Enemy;
 class Player;
@@ -19,6 +20,19 @@ public:
 	virtual void render(void) {};
 	virtual void update(double dt) {};
 
+	int backgmusic;
+	int othersounds;
+
+	bool keybind_walk = false;
+	bool keybind_jump = false;
+	bool keybind_dash = false;
+	bool keybind_shoot = false;
+	bool keybind_auto = false;
+
+	std::vector<bool> keybinds = { keybind_walk, keybind_jump, keybind_dash, keybind_shoot, keybind_auto };
+
+	StageManager::keys selected_keybind = StageManager::WALK;
+
 	//some vars
 	Entity* root_opaque;
 	Entity* root;
@@ -28,20 +42,32 @@ public:
 	Enemy* enemy;
 	Player* player;
 
+	bool play_button_pressed;
+	bool options = false;
+
+	bool mouse_clicked = false;
+
 	Shader* hudshader;
 	Shader* picshader;
 	Shader* squareshader;
+	Shader* textShader;
+
+	Texture* font;
 
 	Shader* shader;
 
 	float anxiety;
 	float anxiety_dt = 0;
 
+	float sensitivity = 1;
+
 	std::string nextStage;
 
 	Camera* camera; //our global camera
 	Camera* camera2D; //our global camera
 	bool mouse_locked; //tells if the mouse is locked (not seen)
+
+	bool paused = false;
 
 	//events
 	virtual void onKeyDown(SDL_KeyboardEvent event) {};

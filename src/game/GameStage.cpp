@@ -408,7 +408,10 @@ GameStage::GameStage()
 	Audio::Get("data/audio/h3_1.mp3");
 	Audio::Get("data/audio/jump.wav");
 	Audio::Get("data/audio/dash_0.wav");
+	Audio::Get("data/audio/maolixiscream.wav");
+	Audio::Get("data/audio/maolixidie.mp3");
 	Audio::Get("data/audio/bgm.mp3", BASS_SAMPLE_LOOP);
+	Audio::Get("data/audio/bgm2.mp3", BASS_SAMPLE_LOOP);
 
 	renderFBO = NULL;
 	cpy = NULL;
@@ -589,6 +592,8 @@ void GameStage::flashBang()
 	shader->setUniform("u_texture", cpy, 0);
 
 	cpy->toViewport(shader);
+
+
 }
 
 void GameStage::generateShadowMaps(Camera* camera)
@@ -681,6 +686,11 @@ void GameStage::lightToShader(Light* light, Shader* shader)
 //what to do when the image has to be draw
 void GameStage::render(void)
 {
+	if (StageManager::instance->transitioning) return;
+	if (paused) {
+
+		return;
+	}
 	float width = Game::instance->window_width, height = Game::instance->window_height;
 	generateShadowMaps(camera);
 	if (!renderFBO) {
@@ -689,10 +699,37 @@ void GameStage::render(void)
 	}
 	renderFBO->enable();
 	// Set the clear color (the background color)
-	std::cout << transitioningPhase << std::endl;
+	//std::cout << transitioningPhase << std::endl;
 	if (transitioningPhase) {
-		flashBang();
-		return;
+		//flashBang();
+		//return;
+		glClearColor(0.0, 0.0, 0.0, 1.0);
+
+		// Clear the window and the depth buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Set the camera as default
+		camera->enable();
+
+		renderSkybox(currSkyBox);
+
+		//// Set flags
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+
+		//drawGrid();
+
+		root_opaque->renderWithLights(camera);
+
+		std::sort(root_transparent->children.begin(), root_transparent->children.end(), compareFunction);
+
+		enemy->renderWithLights(camera);
+		player->renderWithLights(camera);
+
+		root_transparent->renderWithLights(camera);
+
+		glDisable(GL_DEPTH_TEST);
 	}
 	else {
 		glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -741,10 +778,10 @@ void GameStage::render(void)
 	renderHUD();
 
 
-	if (anxiety < -1) {
-		nextStage = "BadEndingStage";
-		StageManager::instance->transitioning = true;
-	}
+	//if (anxiety < -1) {
+	//	nextStage = "BadEndingStage";
+	//	StageManager::instance->transitioning = true;
+	//}
 	if (victory) {
 		nextStage = "GoodEndingStage";
 		StageManager::instance->transitioning = true;
@@ -762,8 +799,17 @@ bool GameStage::compareFunction(const Entity* e1, const Entity* e2) {
 
 void GameStage::update(double seconds_elapsed)
 {
+	if (StageManager::instance->transitioning) return;
 	if (transitioningPhase) {
 		if (!secondPhase) {
+			camera->lookAt(enemy->getPosition() + 10 * enemy->getFront() + Vector3(0,6,0), enemy->getPosition(), camera->up);
+			Audio::Volume(backgmusic, clamp(1 - (Game::instance->time - transitionStart)/4.8,0,1));
+
+			if (transitionStart + 1 < Game::instance->time && !ragescream) {
+				Audio::Play("data/audio/maolixiscream.wav");
+				ragescream = true;
+			}
+
 			player->bullets.clear();
 			enemy->bullets.clear();
 			player->bullets_auto.clearInstances();
@@ -772,25 +818,51 @@ void GameStage::update(double seconds_elapsed)
 			enemy->bullets_normal.clearInstances();
 			enemy->bullets_smallball.clearInstances();
 			enemy->bullets_giantball.clearInstances();
+
+
 		}
 		else {
+			camera->lookAt(enemy->getPosition() + 10 * enemy->getFront() + Vector3(0, 6, 0), enemy->getPosition(), camera->up);
+			Audio::Volume(backgmusic, clamp(1 - (Game::instance->time - transitionStart)/5, 0, 1));
+
+			if (transitionStart + 1 < Game::instance->time && !ragescream) {
+				Audio::Play("data/audio/maolixidie.mp3");
+				ragescream = true;
+			}
+
+			player->bullets.clear();
+			enemy->bullets.clear();
+			player->bullets_auto.clearInstances();
+			player->bullets_normal.clearInstances();
+			enemy->bullets_ball.clearInstances();
+			enemy->bullets_normal.clearInstances();
+			enemy->bullets_smallball.clearInstances();
+			enemy->bullets_giantball.clearInstances();
 			// Death animation
+
+			enemy->model.translate(Vector3(0, -0.035*seconds_elapsed, 0));
 		}
 
 		if (Game::instance->time - transitionStart >= TRANSITION_TIME && !secondPhase)
 		{
+			Audio::Stop(backgmusic);
+			backgmusic = Audio::Play("data/audio/bgm2.mp3");
 			transitioningPhase = false;
+			ragescream = false;
 			secondPhase = true;
 			currentAmbient = Vector3(0.7, 0.7, 0.8);
 			currSkyBox = cubemap2;
 
 		}
 		else if (Game::instance->time - transitionStart >= TRANSITION_TIME_WIN && secondPhase) {
+			Audio::Stop(backgmusic);
 			transitioningPhase = false;
 			victory = true;
 		}
 		return;
 	}
+
+	if (paused) return;
 
 	if (Input::isKeyPressed(SDL_SCANCODE_L)) anxiety += 100 * seconds_elapsed;
 
@@ -854,51 +926,54 @@ void GameStage::update(double seconds_elapsed)
 	float reverse_dist = 1 / sqrt(clamp(player->distance(e2) / 1000, 0.1, 2.5));
 	camera->lookAt((2*reverse_dist)*(player->model.getTranslation() - e2->model.getTranslation()) + Vector3(0,500 - player->model.getTranslation().y * 2 * reverse_dist, 0), e2->model.getTranslation() + Vector3(0, 200, 0), camera->up);*/
 
-
-	if (trees_shoot + interval < Game::instance->time) {
-		for (Entity* e : root_transparent->children) {
-			EntityMesh* ee = dynamic_cast <EntityMesh*> (e);
-			if (ee == nullptr) continue;
-			if (ee->type == WALL) {
-				float r = random();
-				if (r>0.8){
-					Matrix44 _m = Matrix44();
-					Vector3 center_world = ee->model * ee->mesh->box.center;
-					_m.translate(center_world);
-					for (int i = 0; i < 12; i++) {
-						_m.rotate(PI / 6, Vector3::UP);
-						Matrix44 __m = _m;
-						__m.translate(Vector3(1, -3.2, 0));
-						Patterns::circle3(__m, enemy->bullets_ball, 1, 0, 1);
+	
+	if (secondPhase) {
+		if (trees_shoot + interval < Game::instance->time) {
+			for (Entity* e : root_transparent->children) {
+				EntityMesh* ee = dynamic_cast <EntityMesh*> (e);
+				if (ee == nullptr) continue;
+				if (ee->type == WALL) {
+					float r = random();
+					if (r > 0.8) {
+						Matrix44 _m = Matrix44();
+						Vector3 center_world = ee->model * ee->mesh->box.center;
+						_m.translate(center_world);
+						for (int i = 0; i < 12; i++) {
+							_m.rotate(PI / 6, Vector3::UP);
+							Matrix44 __m = _m;
+							__m.translate(Vector3(1, -3.2, 0));
+							Patterns::circle3(__m, enemy->bullets_ball, 1, 0, 1);
+						}
 					}
 				}
 			}
+			trees_shoot = Game::instance->time;
+			interval = random(6, 6);
 		}
-		trees_shoot = Game::instance->time;
-		interval = random(6, 6);
-	}
 
 
-	if (columns_shoot + columns_interval < Game::instance->time) {
-		for (Entity* e : root_transparent->children) {
-			EntityMesh* ee = dynamic_cast <EntityMesh*> (e);
-			if (ee == nullptr) continue;
-			if (ee->type == COLUMN) {
-				Matrix44 _m = Matrix44();
-				Vector3 center_world = ee->model * ee->mesh->box.center;
-				_m.translate(center_world);
-				for (int i = 0; i < 6; i++) {
-					_m.rotate(PI / 3, Vector3::UP);
-					Matrix44 __m = _m;
-					__m.translate(Vector3(2, -1, 0));
-					Patterns::circle5(__m, enemy->bullets_giantball, Vector2(0, 2), Vector2(-2, 2), 1, 0.7, 0.1, 0.5, -0.25, 0.0);
-					//Patterns::circle3(__m, enemy->bullets_ball, 1, 0, 1);
+		if (columns_shoot + columns_interval < Game::instance->time) {
+			for (Entity* e : root_transparent->children) {
+				EntityMesh* ee = dynamic_cast <EntityMesh*> (e);
+				if (ee == nullptr) continue;
+				if (ee->type == COLUMN) {
+					Matrix44 _m = Matrix44();
+					Vector3 center_world = ee->model * ee->mesh->box.center;
+					_m.translate(center_world);
+					for (int i = 0; i < 6; i++) {
+						_m.rotate(PI / 3, Vector3::UP);
+						Matrix44 __m = _m;
+						__m.translate(Vector3(2, -1, 0));
+						Patterns::circle5(__m, enemy->bullets_giantball, Vector2(0, 2), Vector2(-2, 2), 1, 0.7, 0.1, 0.5, -0.25, 0.0);
+						//Patterns::circle3(__m, enemy->bullets_ball, 1, 0, 1);
+					}
 				}
 			}
+			columns_shoot = Game::instance->time;
+			columns_interval = 5;
 		}
-		columns_shoot = Game::instance->time;
-		columns_interval = 5;
 	}
+
 	enemy->update(seconds_elapsed);
 	player->update(seconds_elapsed);
 
@@ -915,6 +990,15 @@ void GameStage::onKeyDown(SDL_KeyboardEvent event)
 		SDL_ShowCursor(!mouse_locked);
 		SDL_SetRelativeMouseMode((SDL_bool)(mouse_locked));
 	}
+
+	switch (event.keysym.sym)
+	{
+	case SDLK_ESCAPE: nextStage = "IntroStage"; StageManager::instance->transitioning = true; //ESC key, kill the app
+	}
+	//switch (event.keysym.sym)
+	//{
+	//case SDLK_ESCAPE: paused = !paused; //ESC key, kill the app
+	//}
 }
 
 void GameStage::onKeyUp(SDL_KeyboardEvent event)
@@ -955,20 +1039,23 @@ void GameStage::onGamepadButtonUp(SDL_JoyButtonEvent event)
 }
 
 void GameStage::switchstage(int flag) {
-	anxiety = 30;
-	currentAmbient = Vector3(0.25, 0.25, 0.45);
-	victory = false;
-	secondPhase = false;
-	enemy->model = Matrix44();
-	player->model.setTranslation(Vector3(10, 0, 0));
-	player->bullets.clear();
-	enemy->bullets.clear();
-	player->bullets_auto.clearInstances();
-	player->bullets_normal.clearInstances();
-	enemy->bullets_ball.clearInstances();
-	enemy->bullets_normal.clearInstances();
-	enemy->bullets_smallball.clearInstances();
-	enemy->bullets_giantball.clearInstances();
+	if (flag == 0) {
+		anxiety = 30;
+		currentAmbient = Vector3(0.25, 0.25, 0.45);
+		victory = false;
+		secondPhase = false;
+		enemy->model = Matrix44();
+		player->model.setTranslation(Vector3(10, 0, 0));
+		player->bullets.clear();
+		enemy->bullets.clear();
+		player->bullets_auto.clearInstances();
+		player->bullets_normal.clearInstances();
+		enemy->bullets_ball.clearInstances();
+		enemy->bullets_normal.clearInstances();
+		enemy->bullets_smallball.clearInstances();
+		enemy->bullets_giantball.clearInstances();
+		backgmusic = Audio::Play("data/audio/bgm.mp3");
+	}
 }
 
 void GameStage::resize()

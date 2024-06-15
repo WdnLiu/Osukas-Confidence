@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <string>
 #include "framework/framework.h"
+#include "framework/includes.h"
 
 class Stage;
 
@@ -16,6 +17,23 @@ public:
 	Stage* currStage;
 	std::unordered_map<std::string, Stage*> stages;
 
+	float sensitivity = 1;
+
+	enum keys : uint8 {
+		WALK,
+		JUMP,
+		DASH,
+		SHOOT,
+		AUTO
+	};
+
+	SDL_Keycode k_walk = SDLK_w;
+	SDL_Keycode k_jump = SDLK_SPACE;
+	SDL_Keycode k_shoot = SDLK_q;
+	SDL_Keycode k_dash = SDLK_LSHIFT;
+	SDL_Keycode k_auto = SDLK_e;
+
+	std::vector<SDL_Keycode*> keyset = {&k_walk, &k_jump, &k_dash, &k_shoot, &k_auto};
 
 	StageManager();
 

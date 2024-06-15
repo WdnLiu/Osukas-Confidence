@@ -468,7 +468,7 @@ LoreStageBegin::LoreStageBegin(cinematic flag)
 
 void LoreStageBegin::render()
 {
-
+	if (StageManager::instance->transitioning) return;
 
 	// Set the clear color (the background color)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -553,7 +553,7 @@ void LoreStageBegin::render()
 				if (currentcontent.at(texts[i].currchars - 1) != ' ') {
 					if (texts[i].hasaudio && !texts[i].hasplayed) {
 						std::cout << "playing audio: " << "data/audio/loredump/" + texts[i].audiopath;
-						Audio::Play("data/audio/loredump/" + texts[i].audiopath);
+						othersounds = Audio::Play("data/audio/loredump/" + texts[i].audiopath);
 						texts[i].hasplayed = true;
 					}
 					else if (!texts[i].hasaudio) {
@@ -653,6 +653,22 @@ void LoreStageBegin::update(double seconds_elapsed)
 			scenes[i].size = scenes[i].size + scenes[i].size_dt * seconds_elapsed;
 			scenes[i].position = scenes[i].position + scenes[i].position_dt * seconds_elapsed;
 		}
+	}
+}
+
+void LoreStageBegin::onKeyDown(SDL_KeyboardEvent event)
+{
+	switch (event.keysym.sym)
+	{
+	case SDLK_ESCAPE: 
+		if (flag == INTRO) {
+			Game::instance->must_exit = true; break; //ESC key, kill the app
+		}
+		else {
+			StageManager::instance->transitioning = true;
+			nextStage = "IntroStage";
+		}
+
 	}
 }
 

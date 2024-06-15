@@ -41,6 +41,7 @@ HCHANNEL Audio::play(float volume)
 	return channel;
 }
 
+
 bool Audio::Init()
 {
 	if (BASS_Init(-1, 44100, 0, 0, NULL) == false) {
@@ -80,6 +81,10 @@ HCHANNEL Audio::Play(const std::string& filename, float volume, uint8_t flags)
 	}
 
 	return audio->play(volume);
+}
+
+void Audio::Volume(HCHANNEL channel, float volume) {
+	BASS_ChannelSetAttribute(channel, BASS_ATTRIB_VOL, volume);
 }
 
 // Make sure the sample has been loaded using "BASS_SAMPLE_3D" flag

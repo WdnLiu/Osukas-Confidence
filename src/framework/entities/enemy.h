@@ -57,15 +57,15 @@ public:
 	Mesh* shadow_mesh = Mesh::Get("data/meshes/shadow.obj");
 
 	enum pattern {
-		SWIRL,
-		FLOWER,
-		HORIZONTAL,
-		SPIRAL,
-		SHOTGUN,
-		RINGS,
-		TRAP,
-		REV,
-		WAVY,
+		SWIRL, //
+		FLOWER, //
+		HORIZONTAL, //
+		SPIRAL, //
+		SHOTGUN, //
+		RINGS, //
+		TRAP, //
+		REV, 
+		WAVY, 
 		WAVY2,
 		SPIRALBURST,
 		SUN,
@@ -82,8 +82,8 @@ public:
 		CASTING,
 		WALKING,
 		RAGE,
-		LAUGH,
-		DEATH
+		DEATH,
+		LAUGH
 	};
 
 
@@ -94,7 +94,7 @@ public:
 	Animation* a_death;
 	Animation* a_laugh;
 
-
+	bool a_transition_started = false;
 
 	animations a_current = CASTING;
 	animations a_latest;
@@ -161,19 +161,19 @@ public:
 		bullet_meshes[0] = m1;
 
 		a_casting = Animation::Get("data/anims/maolixi/maolixi_idle.skanim");
-		animations.push_back(a_casting);
-
 		a_walk = Animation::Get("data/anims/maolixi/maolixi_walk.skanim");
-		animations.push_back(a_walk);
-
 		a_rage = Animation::Get("data/anims/maolixi/maolixi_rage.skanim");
-		animations.push_back(a_rage);
-
 		a_death = Animation::Get("data/anims/maolixi/maolixi_die.skanim");
-		animations.push_back(a_death);
-
 		a_laugh = Animation::Get("data/anims/maolixi/maolixi_laugh.skanim");
-		animations.push_back(a_laugh);
+
+
+		animations = {
+			a_casting,
+			a_walk,
+			a_rage,
+			a_death,
+			a_laugh
+		};
 
 		anim = animations[CASTING];
 

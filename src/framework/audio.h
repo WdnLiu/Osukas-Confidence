@@ -37,6 +37,9 @@ public:
 
 	// Play Manager API
 	static HCHANNEL Play(const std::string& filename, float volume = 1.0f, uint8_t flags = 0);
+
+	static void Volume(HCHANNEL channel, float volume = 1.0f);
+
 	static HCHANNEL Play3D(const std::string& filename, Vector3 position, float volume = 1.0f);
 
 	// Stop sounds

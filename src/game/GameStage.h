@@ -1,8 +1,8 @@
 #pragma once
 #include "stage.h"
 
-#define TRANSITION_TIME 1
-#define TRANSITION_TIME_WIN 1
+#define TRANSITION_TIME 5
+#define TRANSITION_TIME_WIN 5
 
 class Audio;
 class RenderToTexture;
@@ -18,6 +18,7 @@ public:
 	Vector3 currentAmbient = NULL;
 	Texture* currSkyBox;
 
+	bool ragescream = false;
 
 	GameStage();
 
@@ -48,6 +49,7 @@ public:
 	RenderToTexture* renderFBO;
 	RenderToTexture* cpy;
 	FBO* shadowMapFBO;
+
 
 
 	float enoughmanatimer = 0;

@@ -74,7 +74,7 @@ public:
     Font* font1;
     Texture* gus;
 
-    Shader* textShader;
+
 
     enum cinematic : uint8 {
         INTRO,
@@ -106,6 +106,8 @@ public:
 
     void render(void) override;
     void update(double seconds_elapsed) override;
+
+    void onKeyDown(SDL_KeyboardEvent event);
 
     void switchstage(int flag) override;
 

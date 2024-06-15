@@ -37,9 +37,13 @@ void EntityUI::render(Camera* camera2D) {
 
 	//material.shader->setUniform("u_camera_pos")
 	material.shader->setUniform("u_model", Matrix44());
-	material.shader->setUniform("u_color", Vector4(1.0f));
+	material.shader->setUniform("u_color", material.color);
 	material.shader->setUniform("u_viewprojection", camera2D->viewprojection_matrix);
 	//material.shader->setUniform("u_mask", mask);
+
+	if (button_id == SensBar) {
+		material.shader->setUniform("u_percentage", StageManager::instance->sensitivity / 5);
+	}
 
 	if (material.diffuse) {
 		material.shader->setTexture("u_texture", material.diffuse, 0);
@@ -86,12 +90,67 @@ void EntityUI::update(float delta_time) {
 	if (button_id != UndefinedButton &&
 		mouse_pos.x > (position.x - size.x * 0.5) &&
 		mouse_pos.x < (position.x + size.x * 0.5) &&
-		mouse_pos.x >(position.y - size.y * 0.5) &&
-		mouse_pos.x < (position.y + size.y * 0.5)){
+		mouse_pos.y >(position.y - size.y * 0.5) &&
+		mouse_pos.y < (position.y + size.y * 0.5)) {
+		if (material.color.x == Vector4::WHITE.x &&
+			material.color.y == Vector4::WHITE.y &&
+			material.color.z == Vector4::WHITE.z &&
+			material.color.w == Vector4::WHITE.w) 
+		if (button_id != SensBar) {
+			Audio::Play("data/audio/menu/select.wav");
+		}
+		Stage* stage = StageManager::instance->currStage;
+		material.color = Vector4(0.7,0.7,0.7,1);
+		float percentage;
+		if (Input::isMousePressed(SDL_BUTTON_LEFT) && !stage->mouse_clicked) {
+			stage->mouse_clicked = true;
+			switch (button_id) {
+			case PlayButton:
+				stage->play_button_pressed = true;
+				break;
+			case OptionsButton:
+				stage->options = true;
+				break;
+			case ExitButton:
+				stage->options = false;
+				break;
+			case SensBar:
+				percentage = (mouse_pos.x - (position.x - size.x * 0.5) ) / size.x;
+				std::cout << percentage;
+				StageManager::instance->sensitivity = percentage * 2;
+				break;
+			case KeyWalk:
+				stage->selected_keybind = StageManager::WALK;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyJump:
+				stage->selected_keybind = StageManager::JUMP;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyDash:
+				stage->selected_keybind = StageManager::DASH;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyShoot:
+				stage->selected_keybind = StageManager::SHOOT;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyAuto:
+				stage->selected_keybind = StageManager::AUTO;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			}
 
-		material.color = Vector4::RED;
-		if (Input::isMousePressed(SDL_BUTTON_LEFT)) {
-			// StageManager::getInstance()->current->onButtonPressed(button_id);
+		}
+		else if (Input::isMousePressed(SDL_BUTTON_LEFT)) {
+			stage->mouse_clicked = true;
+			switch (button_id) {
+			case SensBar:
+				float percentage = (mouse_pos.x - (position.x - size.x * 0.5)) / size.x;
+				std::cout << percentage;
+				StageManager::instance->sensitivity = percentage * 4.9 + 0.1;
+				break;
+			}
 		}
 	}
 	else {
