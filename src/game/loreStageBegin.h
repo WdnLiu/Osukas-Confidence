@@ -74,7 +74,7 @@ public:
     Font* font1;
     Texture* gus;
 
-    Shader* textShader;
+
 
     enum cinematic : uint8 {
         INTRO,

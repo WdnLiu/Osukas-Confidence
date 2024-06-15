@@ -32,10 +32,16 @@ public:
 	Player* player;
 
 	bool play_button_pressed;
+	bool options = false;
+
+	bool mouse_clicked = false;
 
 	Shader* hudshader;
 	Shader* picshader;
 	Shader* squareshader;
+	Shader* textShader;
+
+	Texture* font;
 
 	Shader* shader;
 

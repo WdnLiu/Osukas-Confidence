@@ -16,7 +16,7 @@ public:
 	Stage* currStage;
 	std::unordered_map<std::string, Stage*> stages;
 
-
+	float sensitivity = 1;
 
 
 	StageManager();

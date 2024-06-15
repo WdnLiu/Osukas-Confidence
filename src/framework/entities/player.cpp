@@ -691,7 +691,7 @@ float Player::updateSubframe(float delta_time) {
 void Player::update(float delta_time) {
 	//std::cout << stamina << "\n";
 	Stage* stage = StageManager::instance->currStage;
-	if (stage->mouse_locked) model.rotate(Input::mouse_delta.x * (0.005f - (timer_bullet_general < knockback_time[bt]) * (0.0045f)), Vector3(0.0f, -1.0f, 0.0f));
+	if (stage->mouse_locked) model.rotate(StageManager::instance->sensitivity*Input::mouse_delta.x * (0.005f - (timer_bullet_general < knockback_time[bt]) * (0.0045f)), Vector3(0.0f, -1.0f, 0.0f));
 	float total_spd;
 	int subframes = 1;
 	if (1 / delta_time < 60) subframes = 120 * delta_time;

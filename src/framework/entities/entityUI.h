@@ -3,12 +3,14 @@
 #include "framework/entities/entityMesh.h"
 #include "framework/animation.h"
 #include "graphics/material.h"
+#include "framework/audio.h"
 
 enum eButtonID {
 	UndefinedButton,
 	PlayButton,
 	OptionsButton,
-	ExitButton
+	ExitButton,
+	SensBar
 	// ...
 };
 
@@ -31,14 +33,18 @@ public:
 	float mask = 1.0f;
 
 	EntityUI() { };
-	EntityUI(Vector2 pos, Vector2 size, const Material& material, eButtonID button_id = UndefinedButton) {
+	EntityUI(Vector2 pos, Vector2 size, const Material& material, float height, eButtonID button_id = UndefinedButton) {
 		this->position = pos;
 		this->size = size;
 		this->material = material;
 		this->button_id = button_id;
 		Mesh* quad = new Mesh();
-		quad->createQuad(pos.x, pos.y, size.x, size.y, false);
+		quad->createQuad(pos.x, height - pos.y, size.x, size.y, false);
 		this->mesh = quad;
+		this->button_id = button_id;
+		if (button_id != UndefinedButton) {
+			Audio::Get("data/audio/menu/select.wav");
+		}
 	};
 	EntityUI(Vector2 size, const Material& material ) {};
 	~EntityUI() {}

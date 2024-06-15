@@ -41,6 +41,10 @@ void EntityUI::render(Camera* camera2D) {
 	material.shader->setUniform("u_viewprojection", camera2D->viewprojection_matrix);
 	//material.shader->setUniform("u_mask", mask);
 
+	if (button_id == SensBar) {
+		material.shader->setUniform("u_percentage", StageManager::instance->sensitivity / 5);
+	}
+
 	if (material.diffuse) {
 		material.shader->setTexture("u_texture", material.diffuse, 0);
 	}
@@ -83,21 +87,52 @@ void EntityUI::render(Camera* camera2D) {
 void EntityUI::update(float delta_time) {
 	Vector2 mouse_pos = Input::mouse_position;
 
-	if (
+	if (button_id != UndefinedButton &&
 		mouse_pos.x > (position.x - size.x * 0.5) &&
 		mouse_pos.x < (position.x + size.x * 0.5) &&
 		mouse_pos.y >(position.y - size.y * 0.5) &&
 		mouse_pos.y < (position.y + size.y * 0.5)) {
-
-		material.color = Vector4::RED;
-		if (Input::isMousePressed(SDL_BUTTON_LEFT)) {
-			Stage* stage = StageManager::instance->currStage;
-			stage->play_button_pressed = true;
-			std::cout << "Clicked" << std::endl;
+		if (material.color.x == Vector4::WHITE.x &&
+			material.color.y == Vector4::WHITE.y &&
+			material.color.z == Vector4::WHITE.z &&
+			material.color.w == Vector4::WHITE.w) 
+		if (button_id != SensBar) {
+			Audio::Play("data/audio/menu/select.wav");
+		}
+		Stage* stage = StageManager::instance->currStage;
+		material.color = Vector4(0.7,0.7,0.7,1);
+		if (Input::isMousePressed(SDL_BUTTON_LEFT) && !stage->mouse_clicked) {
+			stage->mouse_clicked = true;
+			switch (button_id) {
+			case PlayButton:
+				stage->play_button_pressed = true;
+				break;
+			case OptionsButton:
+				stage->options = true;
+				break;
+			case ExitButton:
+				stage->options = false;
+				break;
+			case SensBar:
+				float percentage = (mouse_pos.x - (position.x - size.x * 0.5) ) / size.x;
+				std::cout << percentage;
+				StageManager::instance->sensitivity = percentage * 2;
+				break;
+			}
+		}
+		else if (Input::isMousePressed(SDL_BUTTON_LEFT)) {
+			stage->mouse_clicked = true;
+			switch (button_id) {
+			case SensBar:
+				float percentage = (mouse_pos.x - (position.x - size.x * 0.5)) / size.x;
+				std::cout << percentage;
+				StageManager::instance->sensitivity = percentage * 4.9 + 0.1;
+				break;
+			}
 		}
 	}
 	else {
-		material.color = Vector4::BLUE;
+		material.color = Vector4::WHITE;
 	}
 
 	Entity::update(delta_time);
