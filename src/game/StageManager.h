@@ -22,8 +22,8 @@ public:
 	enum keys : uint8 {
 		WALK,
 		JUMP,
-		SHOOT,
 		DASH,
+		SHOOT,
 		AUTO
 	};
 
@@ -33,7 +33,7 @@ public:
 	SDL_Keycode k_dash = SDLK_LSHIFT;
 	SDL_Keycode k_auto = SDLK_e;
 
-	std::vector<SDL_Keycode*> keyset = {&k_walk, &k_jump, &k_shoot, &k_dash, &k_auto};
+	std::vector<SDL_Keycode*> keyset = {&k_walk, &k_jump, &k_dash, &k_shoot, &k_auto};
 
 	StageManager();
 

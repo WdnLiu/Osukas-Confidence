@@ -112,13 +112,16 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 
 void Player::dash(float delta_time, float dash_duration = 1, float invul_duration = 0.25) {
 	if (!dashing) {
-		m_spd = 3 * DEFAULT_SPD;
-		timer_dash = Game::instance->time;
-		dashInvulnerabilityTimer = Game::instance->time;
-		dashing = true;
-		targetable = false;
-		can_be_hit = false;
-		Audio::Play("data/audio/dash_0.wav");
+		if (stamina > 30) {
+			staminadec -= 30;
+			m_spd = 3 * DEFAULT_SPD;
+			timer_dash = Game::instance->time;
+			dashInvulnerabilityTimer = Game::instance->time;
+			dashing = true;
+			targetable = false;
+			can_be_hit = false;
+			Audio::Play("data/audio/dash_0.wav");
+		}
 	}
 	else if (m_spd > DEFAULT_SPD) {
 		m_spd -= 3 * DEFAULT_SPD * delta_time / dash_duration;
@@ -134,13 +137,15 @@ void Player::dash(float delta_time, float dash_duration = 1, float invul_duratio
 }
 
 void Player::jump(float delta_time) {
-	if (grounded && stamina > 50) {
-		staminadec -= 50;
-		v_spd = JUMP_SPD;
-		timer_jump = Game::instance->time;
-		grounded = false;
-		jumping = true;
-		Audio::Play("data/audio/jump.wav");
+	if (grounded) {
+		if (stamina > 60) {
+			staminadec -= 60;
+			v_spd = JUMP_SPD;
+			timer_jump = Game::instance->time;
+			grounded = false;
+			jumping = true;
+			Audio::Play("data/audio/jump.wav");
+		}
 	}
 	else v_spd = JUMP_SPD * (1 - (2 * (Game::instance->time - timer_jump)));
 }
@@ -789,9 +794,9 @@ void Player::update(float delta_time) {
 	bool enough_mana = (mana > shoot_cost[bt]);
 
 	if (dot > 0.98) {
-		dir.material.color = Vector4(0, enough_mana + (!enough_mana * 0.7), !enough_mana, 0.3);
+		dir.material.color = Vector4(0, enough_mana + (!enough_mana * 0.7), !enough_mana, 1);
 	}
-	else dir.material.color = Vector4::WHITE;
+	else dir.material.color = Vector4(enough_mana, enough_mana + (!enough_mana * 0.7), 1, 1);
 	
 }
 
