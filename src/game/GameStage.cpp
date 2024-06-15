@@ -408,7 +408,10 @@ GameStage::GameStage()
 	Audio::Get("data/audio/h3_1.mp3");
 	Audio::Get("data/audio/jump.wav");
 	Audio::Get("data/audio/dash_0.wav");
+	Audio::Get("data/audio/maolixiscream.wav");
+	Audio::Get("data/audio/maolixidie.mp3");
 	Audio::Get("data/audio/bgm.mp3", BASS_SAMPLE_LOOP);
+	Audio::Get("data/audio/bgm2.mp3", BASS_SAMPLE_LOOP);
 
 	renderFBO = NULL;
 	cpy = NULL;
@@ -589,6 +592,8 @@ void GameStage::flashBang()
 	shader->setUniform("u_texture", cpy, 0);
 
 	cpy->toViewport(shader);
+
+
 }
 
 void GameStage::generateShadowMaps(Camera* camera)
@@ -689,10 +694,37 @@ void GameStage::render(void)
 	}
 	renderFBO->enable();
 	// Set the clear color (the background color)
-	std::cout << transitioningPhase << std::endl;
+	//std::cout << transitioningPhase << std::endl;
 	if (transitioningPhase) {
-		flashBang();
-		return;
+		//flashBang();
+		//return;
+		glClearColor(0.0, 0.0, 0.0, 1.0);
+
+		// Clear the window and the depth buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Set the camera as default
+		camera->enable();
+
+		renderSkybox(currSkyBox);
+
+		//// Set flags
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+
+		//drawGrid();
+
+		root_opaque->renderWithLights(camera);
+
+		std::sort(root_transparent->children.begin(), root_transparent->children.end(), compareFunction);
+
+		enemy->renderWithLights(camera);
+		player->renderWithLights(camera);
+
+		root_transparent->renderWithLights(camera);
+
+		glDisable(GL_DEPTH_TEST);
 	}
 	else {
 		glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -741,10 +773,10 @@ void GameStage::render(void)
 	renderHUD();
 
 
-	if (anxiety < -1) {
-		nextStage = "BadEndingStage";
-		StageManager::instance->transitioning = true;
-	}
+	//if (anxiety < -1) {
+	//	nextStage = "BadEndingStage";
+	//	StageManager::instance->transitioning = true;
+	//}
 	if (victory) {
 		nextStage = "GoodEndingStage";
 		StageManager::instance->transitioning = true;
@@ -764,6 +796,14 @@ void GameStage::update(double seconds_elapsed)
 {
 	if (transitioningPhase) {
 		if (!secondPhase) {
+			camera->lookAt(enemy->getPosition() + 10 * enemy->getFront() + Vector3(0,6,0), enemy->getPosition(), camera->up);
+			Audio::Volume(backgmusic, clamp(1 - (Game::instance->time - transitionStart)/4.8,0,1));
+
+			if (transitionStart + 1 < Game::instance->time && !ragescream) {
+				Audio::Play("data/audio/maolixiscream.wav");
+				ragescream = true;
+			}
+
 			player->bullets.clear();
 			enemy->bullets.clear();
 			player->bullets_auto.clearInstances();
@@ -772,20 +812,42 @@ void GameStage::update(double seconds_elapsed)
 			enemy->bullets_normal.clearInstances();
 			enemy->bullets_smallball.clearInstances();
 			enemy->bullets_giantball.clearInstances();
+
+
 		}
 		else {
+			camera->lookAt(enemy->getPosition() + 10 * enemy->getFront() + Vector3(0, 6, 0), enemy->getPosition(), camera->up);
+			Audio::Volume(backgmusic, clamp(1 - (Game::instance->time - transitionStart)/5, 0, 1));
+
+			if (transitionStart + 1 < Game::instance->time && !ragescream) {
+				Audio::Play("data/audio/maolixidie.mp3");
+				ragescream = true;
+			}
+
+			player->bullets.clear();
+			enemy->bullets.clear();
+			player->bullets_auto.clearInstances();
+			player->bullets_normal.clearInstances();
+			enemy->bullets_ball.clearInstances();
+			enemy->bullets_normal.clearInstances();
+			enemy->bullets_smallball.clearInstances();
+			enemy->bullets_giantball.clearInstances();
 			// Death animation
 		}
 
 		if (Game::instance->time - transitionStart >= TRANSITION_TIME && !secondPhase)
 		{
+			Audio::Stop(backgmusic);
+			backgmusic = Audio::Play("data/audio/bgm2.mp3");
 			transitioningPhase = false;
+			ragescream = false;
 			secondPhase = true;
 			currentAmbient = Vector3(0.7, 0.7, 0.8);
 			currSkyBox = cubemap2;
 
 		}
 		else if (Game::instance->time - transitionStart >= TRANSITION_TIME_WIN && secondPhase) {
+			Audio::Stop(backgmusic);
 			transitioningPhase = false;
 			victory = true;
 		}
@@ -969,6 +1031,7 @@ void GameStage::switchstage(int flag) {
 	enemy->bullets_normal.clearInstances();
 	enemy->bullets_smallball.clearInstances();
 	enemy->bullets_giantball.clearInstances();
+	backgmusic = Audio::Play("data/audio/bgm.mp3");
 }
 
 void GameStage::resize()

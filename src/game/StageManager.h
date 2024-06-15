@@ -17,6 +17,8 @@ public:
 	std::unordered_map<std::string, Stage*> stages;
 
 
+
+
 	StageManager();
 
 	void render();

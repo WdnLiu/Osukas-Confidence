@@ -1,6 +1,7 @@
 #include "enemy.h"
 #include <game/StageManager.h>
 #include "bullet/bullet.h"
+#include "game/GameStage.h"
 #include "player.h"
 
 Enemy::Enemy(Mesh* mesh, const Material& material, const std::string& name, bool is_dynamic, int HP)
@@ -52,14 +53,13 @@ void Enemy::render(Camera* camera)
 	shadow_mesh->render(GL_TRIANGLES);
 
 	anim = animations[a_current];
+	anim->assignTime(Game::instance->time - a_timer);
 	Skeleton blended_skeleton = anim->skeleton;
 	if (Game::instance->time - a_timer < ANIM_TRANSITION) {
 		blendSkeleton(&animations[a_latest]->skeleton,
 			&animations[a_current]->skeleton,
 			(Game::instance->time - a_timer) / ANIM_TRANSITION, &blended_skeleton);
 	}
-
-	anim->assignTime(Game::instance->time - a_timer);
 	
 	if (!material.shader) {
 		material.shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/texture.fs");
@@ -73,7 +73,7 @@ void Enemy::render(Camera* camera)
 		material.shader->setTexture("u_texture", material.diffuse, 0 /*Slot que ocupa en la CPU, cuando tengamos mas texturas ya nos organizamos*/);
 	}
 	material.shader->setUniform("u_model", model);
-	material.shader->setUniform("u_time", Game::instance->time);
+	material.shader->setUniform("u_time", Game::instance->time - a_timer);
 
 	mesh->renderAnimated(GL_TRIANGLES, &blended_skeleton);
 	// std::cout << isAnimated << std::endl;
@@ -173,10 +173,33 @@ void Enemy::update(float time_elapsed)
 {
 	Stage* stage = StageManager::instance->currStage;
 
+	GameStage* gs =  (GameStage*) (stage);
+	if (!gs) {
+		std::cout << "NULL";
+	}
+	else {
+		if (gs->transitioningPhase && !a_transition_started) {
+			a_timer = Game::instance->time;
+			a_transition_started = true;
+			if (!gs->secondPhase) {
+				this->model.rotate(this->model.getYawRotationToAimTo(stage->player->model.getTranslation()) * time_elapsed * 10, Vector3::UP);
+				a_current = RAGE;
+				a_latest = RAGE;
+			}
+			else {
+				a_current = DEATH;
+				a_latest = DEATH;
+			}
+			return;
+		}
+	}
+
+	a_transition_started = false;
+
 	Vector3 player_center = getPosition() + Vector3(0, 1.2, 0);
 
 	if (moving) {
-		this->model.rotate(this->model.getYawRotationToAimTo(model.getTranslation() + direction) * time_elapsed * 10, Vector3::UP);
+		this->model.rotate(this->model.getYawRotationToAimTo(Vector3(current_destination.x, 0, current_destination.y)) * time_elapsed * 10, Vector3::UP);
 	}
 	else if (looking_at_player) {
 		this->model.rotate(this->model.getYawRotationToAimTo(stage->player->model.getTranslation()) * time_elapsed * 10, Vector3::UP);
@@ -188,23 +211,24 @@ void Enemy::update(float time_elapsed)
 	ground_y = -10000;
 
 	std::vector<sCollisionData> ground;
-	std::vector<sCollisionData> collisions;
+	//std::vector<sCollisionData> collisions;
 	stage->ray_collided(stage->root, ground, player_center, -Vector3::UP, 1000, false, FLOOR);
-	stage->sphere_collided(stage->root, collisions, player_center, HITBOX_RAD, COL_TYPE::EBCOLS);
+	//stage->sphere_collided(stage->root, collisions, player_center, HITBOX_RAD/4, COL_TYPE::EBCOLS);
 
-	direction = model.getTranslation() - Vector3(current_destination.x, 0, current_destination.y);
-	direction.y = 0;
-	direction.normalize();
-	Vector3 currDirection = direction;
+	//direction = model.getTranslation() - Vector3(current_destination.x, 0, current_destination.y);
+	//direction.y = 0;
+	//direction.normalize();
+	Vector3 currDirection = model.frontVector();
 
-	if (Input::isKeyPressed(SDL_SCANCODE_K))
-		Patterns::circle(StageManager::instance->currStage->player->getPosition() + Vector3(0, 0.5, 0), Vector3(0, 0, 1), model, bullets, amount[0], bullet_shaders[0], bullet_textures[0], bullet_meshes[0], false);
+	//if (Input::isKeyPressed(SDL_SCANCODE_K))
+		//Patterns::circle(StageManager::instance->currStage->player->getPosition() + Vector3(0, 0.5, 0), Vector3(0, 0, 1), model, bullets, amount[0], bullet_shaders[0], bullet_textures[0], bullet_meshes[0], false);
+	
+	//Vector3 movement = model.frontVector() * time_elapsed;
 
-
-	for (sCollisionData& g : collisions) {
-		currDirection += g.colNormal;
-		currDirection.y = 0;
-	}
+	//for (sCollisionData& g : collisions) {
+	//	currDirection += g.colNormal;
+	//	currDirection.y = 0;
+	//}
 
 	for (sCollisionData& g : ground) {
 		if (ground_y < g.colPoint.y) {
@@ -224,12 +248,14 @@ void Enemy::update(float time_elapsed)
 	//	v_spd -= GRAVITY * time_elapsed;
 	//}
 
-	Vector3 movement = (currDirection.normalize() * (1 + 3 * (Game::instance->time - startMoving) - 1.5 * (startMoving - Game::instance->time) * (startMoving - Game::instance->time)) + Vector3::UP * (grounded ? (ground_y - getPosition().y) * 40 : v_spd)) * time_elapsed;
+	Vector3 movement = (currDirection.normalize() * (1 + clamp(3 * (Game::instance->time - startMoving) - 1.5 * (startMoving - Game::instance->time) * (startMoving - Game::instance->time)), 0, 3) + Vector3::UP * (grounded ? (ground_y - getPosition().y) * 40 : v_spd)) * time_elapsed;
+	//Vector3 movement = 3 * model.frontVector() * time_elapsed;
+
 
 	if (moving)
 	{
 		this->model.translateGlobal(movement);
-		if (startMoving + 2 <= Game::instance->time) {
+		if (startMoving + 3 <= Game::instance->time) {
 			bulletCD = Game::instance->time - 0.5;
 			moving = false;
 			startFiring = Game::instance->time;
@@ -266,7 +292,10 @@ void Enemy::update(float time_elapsed)
 
 			startMoving = Game::instance->time;
 
-			int next_dest_id = random(0, possible_destinations.size() - 0.01);
+			int next_dest_id;
+			float r = random() * possible_destinations.size();
+			next_dest_id = (pattern)clamp(floor(r), 0, possible_destinations.size() - 1);
+
 			Vector2 next_destination = possible_destinations[next_dest_id];
 			if (next_destination.x == current_destination.x && next_destination.y == next_destination.y) {
 				current_destination = possible_destinations[(next_dest_id + 1) % possible_destinations.size()];
@@ -274,6 +303,8 @@ void Enemy::update(float time_elapsed)
 			else {
 				current_destination = next_destination;
 			}
+
+			std::cout << "current dest: " << current_destination.x << " " << current_destination.y << "\n";
 		}
 		switch (current_pattern) {
 		case SWIRL:

@@ -19,6 +19,8 @@ public:
 	virtual void render(void) {};
 	virtual void update(double dt) {};
 
+	int backgmusic;
+
 	//some vars
 	Entity* root_opaque;
 	Entity* root;
