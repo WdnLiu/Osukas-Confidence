@@ -31,7 +31,15 @@ public:
 	float mask = 1.0f;
 
 	EntityUI() { };
-	EntityUI(Vector2 pos, Vector2 size, const Material& material, eButtonID button_id = UndefinedButton, const std::string idk_no_cabe_en_la_foto = "") {};
+	EntityUI(Vector2 pos, Vector2 size, const Material& material, eButtonID button_id = UndefinedButton) {
+		this->position = pos;
+		this->size = size;
+		this->material = material;
+		this->button_id = button_id;
+		Mesh* quad = new Mesh();
+		quad->createQuad(pos.x, pos.y, size.x, size.y, false);
+		this->mesh = quad;
+	};
 	EntityUI(Vector2 size, const Material& material ) {};
 	~EntityUI() {}
 	

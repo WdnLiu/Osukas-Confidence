@@ -37,7 +37,7 @@ void EntityUI::render(Camera* camera2D) {
 
 	//material.shader->setUniform("u_camera_pos")
 	material.shader->setUniform("u_model", Matrix44());
-	material.shader->setUniform("u_color", Vector4(1.0f));
+	material.shader->setUniform("u_color", material.color);
 	material.shader->setUniform("u_viewprojection", camera2D->viewprojection_matrix);
 	//material.shader->setUniform("u_mask", mask);
 
@@ -83,19 +83,21 @@ void EntityUI::render(Camera* camera2D) {
 void EntityUI::update(float delta_time) {
 	Vector2 mouse_pos = Input::mouse_position;
 
-	if (button_id != UndefinedButton &&
+	if (
 		mouse_pos.x > (position.x - size.x * 0.5) &&
 		mouse_pos.x < (position.x + size.x * 0.5) &&
-		mouse_pos.x >(position.y - size.y * 0.5) &&
-		mouse_pos.x < (position.y + size.y * 0.5)){
+		mouse_pos.y >(position.y - size.y * 0.5) &&
+		mouse_pos.y < (position.y + size.y * 0.5)) {
 
 		material.color = Vector4::RED;
 		if (Input::isMousePressed(SDL_BUTTON_LEFT)) {
-			// StageManager::getInstance()->current->onButtonPressed(button_id);
+			Stage* stage = StageManager::instance->currStage;
+			stage->play_button_pressed = true;
+			std::cout << "Clicked" << std::endl;
 		}
 	}
 	else {
-		material.color = Vector4::WHITE;
+		material.color = Vector4::BLUE;
 	}
 
 	Entity::update(delta_time);

@@ -833,6 +833,8 @@ void GameStage::update(double seconds_elapsed)
 			enemy->bullets_smallball.clearInstances();
 			enemy->bullets_giantball.clearInstances();
 			// Death animation
+
+			enemy->model.translate(Vector3(0, -0.035*seconds_elapsed, 0));
 		}
 
 		if (Game::instance->time - transitionStart >= TRANSITION_TIME && !secondPhase)
@@ -1017,21 +1019,23 @@ void GameStage::onGamepadButtonUp(SDL_JoyButtonEvent event)
 }
 
 void GameStage::switchstage(int flag) {
-	anxiety = 30;
-	currentAmbient = Vector3(0.25, 0.25, 0.45);
-	victory = false;
-	secondPhase = false;
-	enemy->model = Matrix44();
-	player->model.setTranslation(Vector3(10, 0, 0));
-	player->bullets.clear();
-	enemy->bullets.clear();
-	player->bullets_auto.clearInstances();
-	player->bullets_normal.clearInstances();
-	enemy->bullets_ball.clearInstances();
-	enemy->bullets_normal.clearInstances();
-	enemy->bullets_smallball.clearInstances();
-	enemy->bullets_giantball.clearInstances();
-	backgmusic = Audio::Play("data/audio/bgm.mp3");
+	if (flag == 0) {
+		anxiety = 30;
+		currentAmbient = Vector3(0.25, 0.25, 0.45);
+		victory = false;
+		secondPhase = false;
+		enemy->model = Matrix44();
+		player->model.setTranslation(Vector3(10, 0, 0));
+		player->bullets.clear();
+		enemy->bullets.clear();
+		player->bullets_auto.clearInstances();
+		player->bullets_normal.clearInstances();
+		enemy->bullets_ball.clearInstances();
+		enemy->bullets_normal.clearInstances();
+		enemy->bullets_smallball.clearInstances();
+		enemy->bullets_giantball.clearInstances();
+		backgmusic = Audio::Play("data/audio/bgm.mp3");
+	}
 }
 
 void GameStage::resize()

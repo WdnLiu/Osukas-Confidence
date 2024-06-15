@@ -20,6 +20,7 @@ public:
 	virtual void update(double dt) {};
 
 	int backgmusic;
+	int othersounds;
 
 	//some vars
 	Entity* root_opaque;
@@ -29,6 +30,8 @@ public:
 
 	Enemy* enemy;
 	Player* player;
+
+	bool play_button_pressed;
 
 	Shader* hudshader;
 	Shader* picshader;

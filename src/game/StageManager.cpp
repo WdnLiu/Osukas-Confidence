@@ -32,25 +32,24 @@ void StageManager::render() {
 void StageManager::update(double seconds_elapsed) {
 	if (transitioning)
 	{
+		Audio::Stop(currStage->backgmusic);
+		Audio::Stop(currStage->othersounds);
 		if (currStage->nextStage == "IntroStage") {
-
+			stages[currStage->nextStage]->switchstage(0);
 		}
 		else if (currStage->nextStage == "LoreStageBegin") {
-			Audio::Stop(currStage->backgmusic);
 			stages[currStage->nextStage]->switchstage(LoreStageBegin::INTRO);
 		}
 		else if (currStage->nextStage == "GoodEndingStage") {
-			Audio::Stop(currStage->backgmusic);
 			stages[currStage->nextStage]->switchstage(LoreStageBegin::GOODENDING);
 		}
 		else if (currStage->nextStage == "BadEndingStage") {
-			Audio::Stop(currStage->backgmusic);
 			stages[currStage->nextStage]->switchstage(LoreStageBegin::BADENDING);
 		}
 		else {
-
 			stages[currStage->nextStage]->switchstage(0);
 		}
+		currStage->switchstage(-1);
 		currStage = stages[currStage->nextStage];
 		transitioning = false;
 	}

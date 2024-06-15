@@ -37,6 +37,11 @@ void Enemy::render(Camera* camera)
 	// Render the Shadow
 	Matrix44 squash = model;
 	squash.setTranslation(Vector3(model.getTranslation().x, ground_y, model.getTranslation().z));
+
+	if (a_current == DEATH) {
+		squash.rotate(squash.getYawRotationToAimTo(camera->eye), Vector3::UP);
+		squash.translate(-0.25, 0, (Game::instance->time - a_timer - 3 > 0) ? - 1.5 * clamp((Game::instance->time - a_timer - 3)* (Game::instance->time - a_timer - 3), 0, 2 / 1.5) : 0);
+	}
 	squash.scale(3.5 / (1 + ground_below_y), 0.01, 3.5 / (1 + ground_below_y));
 
 	//glDepthFunc(GL_GREATER);

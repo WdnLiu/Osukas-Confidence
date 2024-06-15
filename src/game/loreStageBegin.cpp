@@ -553,7 +553,7 @@ void LoreStageBegin::render()
 				if (currentcontent.at(texts[i].currchars - 1) != ' ') {
 					if (texts[i].hasaudio && !texts[i].hasplayed) {
 						std::cout << "playing audio: " << "data/audio/loredump/" + texts[i].audiopath;
-						Audio::Play("data/audio/loredump/" + texts[i].audiopath);
+						othersounds = Audio::Play("data/audio/loredump/" + texts[i].audiopath);
 						texts[i].hasplayed = true;
 					}
 					else if (!texts[i].hasaudio) {
