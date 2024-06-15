@@ -184,10 +184,10 @@ void Enemy::update(float time_elapsed)
 		return;
 	}
 	else {
-		if (gs->transitioningPhase && !a_transition_started) {
+		if (stage->transitioningPhase && !a_transition_started) {
 			a_timer = Game::instance->time;
 			a_transition_started = true;
-			if (!gs->secondPhase) {
+			if (!stage->secondPhase) {
 				this->model.rotate(this->model.getYawRotationToAimTo(stage->player->model.getTranslation()) * time_elapsed * 10, Vector3::UP);
 				a_current = RAGE;
 				a_latest = RAGE;
@@ -267,11 +267,11 @@ void Enemy::update(float time_elapsed)
 			startFiring = Game::instance->time;
 			float r = random(1); 
 			std::cout << std::endl << "The random number is: " << r << std::endl;
-			r *= gs->secondPhase ? 13 : 7;
-			if (gs->secondPhase) {
+			r *= stage->secondPhase ? 13 : 7;
+			if (stage->secondPhase) {
 				if (r < 7)  r = random(1) * 13;
 			}
-			current_pattern = (pattern)clamp(floor(r), 0, (gs->secondPhase) ? 12 : 6);
+			current_pattern = (pattern)clamp(floor(r), 0, (stage->secondPhase) ? 12 : 6);
 			//current_pattern = SHOTGUN;
 			std::cout << current_pattern << " " << r << std::endl;
 			burstCount = 0;

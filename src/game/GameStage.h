@@ -2,7 +2,7 @@
 #include "stage.h"
 
 #define TRANSITION_TIME 5
-#define TRANSITION_TIME_WIN 5
+#define TRANSITION_TIME_WIN 6
 
 class Audio;
 class RenderToTexture;
@@ -28,9 +28,6 @@ public:
 
 	//Second phase transitioning variables
 	float transitionStart = 0;
-	bool transitioningPhase = false;
-	bool secondPhase = false;
-	bool victory = false;
 	void flashBang();
 
 	float trees_shoot = 0;

@@ -460,28 +460,27 @@ void Player::renderWithLights(Camera* camera) {
 	// Disable shader after finishing rendering
 	shader->disable();
 
+	if (!stage->transitioningPhase) {
+		staminashader->enable();
 
-	staminashader->enable();
+		Matrix44 stam = model;
+		stam.setTranslation(Vector3(model.getTranslation().x, ground_y + 0.05, model.getTranslation().z));
+		stam.rotate(stam.getYawRotationToAimTo(stage->enemy->getPosition()) - PI, Vector3::UP);
 
-	Matrix44 stam = model;
-	stam.setTranslation(Vector3(model.getTranslation().x, ground_y + 0.05, model.getTranslation().z));
-	stam.rotate(stam.getYawRotationToAimTo(stage->enemy->getPosition()) - PI, Vector3::UP);
+		staminashader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+		staminashader->setUniform("u_model", stam);
+		staminashader->setUniform("u_color", Vector4(0, 1, 0, 1));
+		staminashader->setUniform("u_percentage", stamina / 200);
+		staminashader->setUniform("u_decrease", staminadec / 200);
+		//flat_shader->setTexture("u_texture", staminatext, 0);
 
-	staminashader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	staminashader->setUniform("u_model", stam);
-	staminashader->setUniform("u_color", Vector4(0, 1, 0, 1));
-	staminashader->setUniform("u_percentage", stamina / 200);
-	staminashader->setUniform("u_decrease", staminadec / 200);
-	//flat_shader->setTexture("u_texture", staminatext, 0);
+		staminabar->render(GL_TRIANGLES);
 
-	staminabar->render(GL_TRIANGLES);
+		staminashader->disable();
 
-	staminashader->disable();
-
-	dir.render(camera);
-	vec.render(camera);
-
-
+		dir.render(camera);
+		vec.render(camera);
+	}
 
 
 

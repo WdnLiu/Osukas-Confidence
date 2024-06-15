@@ -604,40 +604,40 @@ void LoreStageBegin::update(double seconds_elapsed)
 	if (flag == INTRO) {
 		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 102) {
 			StageManager::instance->transitioning = true;
-			Audio::Stop(bgmusic);
+			Audio::Stop(backgmusic);
 		}
 		if (time > 22 && !playingbgm) {
-			bgmusic = Audio::Play("data/audio/loredump/bgm.flac", 0.10);
+			backgmusic = Audio::Play("data/audio/loredump/bgm.flac", 0.2);
 			playingbgm = true;
 		}
 		if (time > 8 && !playingbgm1) {
-			bgmusic = Audio::Play("data/audio/loredump/bgm1.flac", 0.18);
+			backgmusic = Audio::Play("data/audio/loredump/bgm1.flac", 0.2);
 			playingbgm1 = true;
 		}
 	}
 	else if (flag == GOODENDING) {
 		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 47) {
 			StageManager::instance->transitioning = true;
-			Audio::Stop(bgmusic);
+			Audio::Stop(backgmusic);
 		}
 		if (time > 9 && !playingbgm1) {
-			bgmusic = Audio::Play("data/audio/loredump/bgmgood.flac", 0.3);
+			backgmusic = Audio::Play("data/audio/loredump/bgmgood.flac", 0.3);
 			playingbgm1 = true;
 		}
 	}
 	else if (flag == BADENDING) {
 		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 10) {
 			StageManager::instance->transitioning = true;
-			Audio::Stop(bgmusic);
+			Audio::Stop(backgmusic);
 		}
 		if (!baddream && time > 1) {
-			bgmusic = Audio::Play("data/audio/loredump/badending1.wav", 0.7);
+			backgmusic = Audio::Play("data/audio/loredump/badending1.wav", 0.7);
 			baddream = true;
 		}
 	}
 
 	if (Input::wasKeyPressed(SDL_SCANCODE_B)) {
-		Audio::Stop(bgmusic);
+		Audio::Stop(backgmusic);
 		switchstage(flag);
 	}
 
@@ -674,6 +674,14 @@ void LoreStageBegin::onKeyDown(SDL_KeyboardEvent event)
 
 void LoreStageBegin::switchstage(int c)
 {
+	if (c == -1) {
+		Audio::Stop(bgmusic);
+		Audio::Stop(backgmusic);
+		Audio::Stop(othersounds);
+
+		return;
+	}
+
 	starttime = Game::instance->time;
 
 	texts.clear();
@@ -688,6 +696,7 @@ void LoreStageBegin::switchstage(int c)
 	if (flag == INTRO) loadIntro();
 	else if (flag == GOODENDING) loadGoodEnding();
 	else if (flag == BADENDING) loadBadEnding();
+
 }
 
 void LoreStageBegin::resize()

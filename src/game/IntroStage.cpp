@@ -141,32 +141,63 @@ IntroStage::IntroStage()
 
     nextStage = "GameStage";
 
-	Vector2 pos = Vector2(width/2, height/2), size = Vector2(300, 100);
+	Vector2 pos = Vector2(width/2, height/2), size = Vector2(width, height);
 	Material material;
+	material.color = Vector4(1);
+	material.diffuse = Texture::Get("data/textures/badending1.PNG");
+	material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	eButtonID buttontype = UndefinedButton;
+	EntityUI* bg = new EntityUI(pos, size, material, height, buttontype);
+	buttons.push_back(bg);
+
+	pos = Vector2(width / 2, height / 2), size = Vector2(width, height);
+	material.color = Vector4(1);
+	material.diffuse = Texture::Get("data/textures/menu/bar.PNG");
+	material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	buttontype = UndefinedButton;
+	EntityUI* dim = new EntityUI(pos, size, material, height, Vector4(0,0,0,0.7), Vector4(1,1,1,1));
+	buttons.push_back(dim);
+
+
+	pos = Vector2(width / 2, height / 2 + 150), size = Vector2(500, 200);
 	material.color = Vector4(1);
 	material.diffuse = Texture::Get("data/textures/menu/playbutton.PNG");
 	material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	eButtonID buttontype = PlayButton;
+	buttontype = PlayButton;
 	EntityUI* play = new EntityUI(pos, size, material, height, buttontype);
 	buttons.push_back(play);
 
-	pos = Vector2(width / 2, height / 2 + 120); size = Vector2(300, 100);
+	pos = Vector2(width / 2, height / 2 - 100); size = Vector2(800, 500);
+	material.diffuse = Texture::Get("data/textures/menu/titel.png");
+	buttontype = UndefinedButton;
+	EntityUI* titel = new EntityUI(pos, size, material, height, buttontype);
+	buttons.push_back(titel);
+
+	pos = Vector2(width / 2, height / 2 + 310); size = Vector2(500, 60);
 	material.diffuse = Texture::Get("data/textures/menu/settingsbutton.PNG");
 	buttontype = OptionsButton;
 	EntityUI* settings = new EntityUI(pos, size, material, height ,buttontype);
 	buttons.push_back(settings);
 
-	pos = Vector2(width / 2, height / 2 + 120 + 100); size = Vector2(300, 100);
+	pos = Vector2(width / 2, height / 2 + 120 + 100 + 30); size = Vector2(300, 100);
 	material.diffuse = Texture::Get("data/textures/menu/backbutton.PNG");
 	buttontype = ExitButton;
 	EntityUI* back = new EntityUI(pos, size, material, height, buttontype);
 	optionbuttons.push_back(back);
 
-	pos = Vector2(width / 2, height / 2 + 35 + 90), size = Vector2(400, 30);
+	pos = Vector2(width / 2, height / 2 + 35 + 120), size = Vector2(420, 50);
+	material.diffuse = Texture::Get("data/textures/menu/bar.PNG");
+	material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	buttontype = UndefinedButton;
+	EntityUI* sensbarbg = new EntityUI(pos, size, material, height, buttontype);
+	optionbuttons.push_back(sensbarbg);
+
+	pos = Vector2(width / 2, height / 2 + 35 + 120), size = Vector2(400, 30);
 	material.diffuse = Texture::Get("data/textures/menu/bar.PNG");
 	material.shader = Shader::Get("data/shaders/basic2.vs", "data/shaders/texture3.fs");
+	material.color = Vector4(0, 0, 0, 1);
 	buttontype = SensBar;
-	EntityUI* sensbar = new EntityUI(pos, size, material, height, buttontype);
+	EntityUI* sensbar = new EntityUI(pos, size, material, height, Vector4(0,0,0,1), Vector4(0.2, 0.2, 0.2, 1), buttontype);
 	optionbuttons.push_back(sensbar);
 
 	pos = Vector2(width / 2, height / 2 - 50 + 120), size = Vector2(250, 40);
@@ -225,7 +256,7 @@ void IntroStage::render()
 		else {
 			filler = "00";
 		}
-		drawText(Game::instance->window_width / 2.0f - 20, Game::instance->window_height / 2.0f - 20,filler + std::to_string(((int)floor(StageManager::instance->sensitivity * 100))), Vector3(1), 2);
+		drawText(Game::instance->window_width / 2.0f - 20, Game::instance->window_height / 2.0f + 100,filler + std::to_string(((int)floor(StageManager::instance->sensitivity * 100))), Vector3(1), 2);
 		for (int i = 0; i < optionbuttons.size(); i++) {
 			optionbuttons[i]->render(camera2D);
 		}
@@ -254,10 +285,6 @@ void IntroStage::render()
 	}
 
 
-	for (bool kb : keybinds) {
-		std::cout << kb << " ";
-	}
-	std::cout << std::endl;
 
     //drawText(Game::instance->window_width / 2.0f, Game::instance->window_height / 2.0f, "Press the key A to continue!", Vector3(((int) Game::instance->time)%2), 5);
 }

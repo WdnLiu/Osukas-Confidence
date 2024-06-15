@@ -775,13 +775,13 @@ void GameStage::render(void)
 	drawText(2, 400, std::to_string(player->targetable), Vector3(1, 1, 1), 5);
 
 	//amogus.render(camera2D);
-	renderHUD();
+	if (!transitioningPhase) renderHUD();
 
 
-	//if (anxiety < -1) {
-	//	nextStage = "BadEndingStage";
-	//	StageManager::instance->transitioning = true;
-	//}
+	if (anxiety < -1) {
+		nextStage = "BadEndingStage";
+		StageManager::instance->transitioning = true;
+	}
 	if (victory) {
 		nextStage = "GoodEndingStage";
 		StageManager::instance->transitioning = true;
