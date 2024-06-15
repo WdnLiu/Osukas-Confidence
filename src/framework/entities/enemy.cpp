@@ -181,6 +181,7 @@ void Enemy::update(float time_elapsed)
 	GameStage* gs =  (GameStage*) (stage);
 	if (!gs) {
 		std::cout << "NULL";
+		return;
 	}
 	else {
 		if (gs->transitioningPhase && !a_transition_started) {
@@ -264,9 +265,14 @@ void Enemy::update(float time_elapsed)
 			bulletCD = Game::instance->time - 0.5;
 			moving = false;
 			startFiring = Game::instance->time;
-			float r = random() * 13;
-			current_pattern = (pattern)clamp(floor(r), 0, 12);
-			//current_pattern = SUN;
+			float r = random(1); 
+			std::cout << std::endl << "The random number is: " << r << std::endl;
+			r *= gs->secondPhase ? 13 : 7;
+			if (gs->secondPhase) {
+				if (r < 7)  r = random(1) * 13;
+			}
+			current_pattern = (pattern)clamp(floor(r), 0, (gs->secondPhase) ? 12 : 6);
+			//current_pattern = SHOTGUN;
 			std::cout << current_pattern << " " << r << std::endl;
 			burstCount = 0;
 

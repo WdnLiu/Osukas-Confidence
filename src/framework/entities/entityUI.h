@@ -10,7 +10,12 @@ enum eButtonID {
 	PlayButton,
 	OptionsButton,
 	ExitButton,
-	SensBar
+	SensBar,
+	KeyWalk,
+	KeyJump, 
+	KeyDash,
+	KeyShoot,
+	KeyAuto
 	// ...
 };
 

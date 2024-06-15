@@ -799,7 +799,7 @@ bool GameStage::compareFunction(const Entity* e1, const Entity* e2) {
 
 void GameStage::update(double seconds_elapsed)
 {
-
+	if (StageManager::instance->transitioning) return;
 	if (transitioningPhase) {
 		if (!secondPhase) {
 			camera->lookAt(enemy->getPosition() + 10 * enemy->getFront() + Vector3(0,6,0), enemy->getPosition(), camera->up);
@@ -926,51 +926,54 @@ void GameStage::update(double seconds_elapsed)
 	float reverse_dist = 1 / sqrt(clamp(player->distance(e2) / 1000, 0.1, 2.5));
 	camera->lookAt((2*reverse_dist)*(player->model.getTranslation() - e2->model.getTranslation()) + Vector3(0,500 - player->model.getTranslation().y * 2 * reverse_dist, 0), e2->model.getTranslation() + Vector3(0, 200, 0), camera->up);*/
 
-
-	if (trees_shoot + interval < Game::instance->time) {
-		for (Entity* e : root_transparent->children) {
-			EntityMesh* ee = dynamic_cast <EntityMesh*> (e);
-			if (ee == nullptr) continue;
-			if (ee->type == WALL) {
-				float r = random();
-				if (r>0.8){
-					Matrix44 _m = Matrix44();
-					Vector3 center_world = ee->model * ee->mesh->box.center;
-					_m.translate(center_world);
-					for (int i = 0; i < 12; i++) {
-						_m.rotate(PI / 6, Vector3::UP);
-						Matrix44 __m = _m;
-						__m.translate(Vector3(1, -3.2, 0));
-						Patterns::circle3(__m, enemy->bullets_ball, 1, 0, 1);
+	
+	if (secondPhase) {
+		if (trees_shoot + interval < Game::instance->time) {
+			for (Entity* e : root_transparent->children) {
+				EntityMesh* ee = dynamic_cast <EntityMesh*> (e);
+				if (ee == nullptr) continue;
+				if (ee->type == WALL) {
+					float r = random();
+					if (r > 0.8) {
+						Matrix44 _m = Matrix44();
+						Vector3 center_world = ee->model * ee->mesh->box.center;
+						_m.translate(center_world);
+						for (int i = 0; i < 12; i++) {
+							_m.rotate(PI / 6, Vector3::UP);
+							Matrix44 __m = _m;
+							__m.translate(Vector3(1, -3.2, 0));
+							Patterns::circle3(__m, enemy->bullets_ball, 1, 0, 1);
+						}
 					}
 				}
 			}
+			trees_shoot = Game::instance->time;
+			interval = random(6, 6);
 		}
-		trees_shoot = Game::instance->time;
-		interval = random(6, 6);
-	}
 
 
-	if (columns_shoot + columns_interval < Game::instance->time) {
-		for (Entity* e : root_transparent->children) {
-			EntityMesh* ee = dynamic_cast <EntityMesh*> (e);
-			if (ee == nullptr) continue;
-			if (ee->type == COLUMN) {
-				Matrix44 _m = Matrix44();
-				Vector3 center_world = ee->model * ee->mesh->box.center;
-				_m.translate(center_world);
-				for (int i = 0; i < 6; i++) {
-					_m.rotate(PI / 3, Vector3::UP);
-					Matrix44 __m = _m;
-					__m.translate(Vector3(2, -1, 0));
-					Patterns::circle5(__m, enemy->bullets_giantball, Vector2(0, 2), Vector2(-2, 2), 1, 0.7, 0.1, 0.5, -0.25, 0.0);
-					//Patterns::circle3(__m, enemy->bullets_ball, 1, 0, 1);
+		if (columns_shoot + columns_interval < Game::instance->time) {
+			for (Entity* e : root_transparent->children) {
+				EntityMesh* ee = dynamic_cast <EntityMesh*> (e);
+				if (ee == nullptr) continue;
+				if (ee->type == COLUMN) {
+					Matrix44 _m = Matrix44();
+					Vector3 center_world = ee->model * ee->mesh->box.center;
+					_m.translate(center_world);
+					for (int i = 0; i < 6; i++) {
+						_m.rotate(PI / 3, Vector3::UP);
+						Matrix44 __m = _m;
+						__m.translate(Vector3(2, -1, 0));
+						Patterns::circle5(__m, enemy->bullets_giantball, Vector2(0, 2), Vector2(-2, 2), 1, 0.7, 0.1, 0.5, -0.25, 0.0);
+						//Patterns::circle3(__m, enemy->bullets_ball, 1, 0, 1);
+					}
 				}
 			}
+			columns_shoot = Game::instance->time;
+			columns_interval = 5;
 		}
-		columns_shoot = Game::instance->time;
-		columns_interval = 5;
 	}
+
 	enemy->update(seconds_elapsed);
 	player->update(seconds_elapsed);
 

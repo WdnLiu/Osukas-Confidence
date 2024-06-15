@@ -22,6 +22,12 @@ public:
 	int backgmusic;
 	int othersounds;
 
+	bool keybind_walk;
+	bool keybind_jump;
+	bool keybind_dash;
+	bool keybind_shoot;
+	bool keybind_auto;
+
 	//some vars
 	Entity* root_opaque;
 	Entity* root;

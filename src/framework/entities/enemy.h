@@ -57,15 +57,15 @@ public:
 	Mesh* shadow_mesh = Mesh::Get("data/meshes/shadow.obj");
 
 	enum pattern {
-		SWIRL,
-		FLOWER,
-		HORIZONTAL,
-		SPIRAL,
-		SHOTGUN,
-		RINGS,
-		TRAP,
-		REV,
-		WAVY,
+		SWIRL, //
+		FLOWER, //
+		HORIZONTAL, //
+		SPIRAL, //
+		SHOTGUN, //
+		RINGS, //
+		TRAP, //
+		REV, 
+		WAVY, 
 		WAVY2,
 		SPIRALBURST,
 		SUN,
