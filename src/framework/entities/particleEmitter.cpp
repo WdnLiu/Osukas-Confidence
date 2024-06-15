@@ -113,7 +113,7 @@ void ParticleEmitter::render(Camera* camera) {
 	ide.rotate(ide.getYawRotationToAimTo(camera->eye), Vector3::UP);
 
 	material.shader->setUniform("u_model", Matrix44());
-	material.shader->setUniform("u_color", Vector4(1.0f));
+	material.shader->setUniform("u_color", Vector4(1,1,1,0.8));
 	material.shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 
 	
@@ -126,7 +126,7 @@ void ParticleEmitter::render(Camera* camera) {
 		std::cout << "No diffuse";
 	}
 
-	quad.render(GL_TRIANGLES);
+	if (!quad.vertices.empty()) quad.render(GL_TRIANGLES);
 
 	material.shader->disable();
 
@@ -136,6 +136,8 @@ void ParticleEmitter::render(Camera* camera) {
 void ParticleEmitter::update(float delta_time) {
 	emit_timer += delta_time;
 
+	std::cout << "Particle Updating!" << std::endl;
+
 	if (emit_timer > emit_rate) {
 		emit();
 	}
@@ -144,6 +146,8 @@ void ParticleEmitter::update(float delta_time) {
 
 		p.position += (p.velocity) * delta_time;
 		p.ttl += delta_time;
+		p.velocity.x -= p.velocity.x * 0.5 * delta_time ;
+		p.velocity.z -= p.velocity.z * 0.5 * delta_time ;
 
 		if (p.ttl > max_ttl) {
 			p.active = false;
@@ -166,8 +170,8 @@ void ParticleEmitter::emit() {
 		p.id = last_id++;
 		p.ttl = 0.f;
 		p.active = true;
-		p.position = emit_position;
-		p.velocity = emit_velocity;
+		p.position = emit_position + Vector3(random(), 3 * random(), random());;
+		p.velocity = emit_velocity + Vector3(10 * random() - 5, 10 * random(),10 * random() - 5);
 		active_particles++;
 		break;
 	}

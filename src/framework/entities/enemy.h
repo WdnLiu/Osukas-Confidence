@@ -41,6 +41,8 @@ public:
 	float m_spd;
 	float v_spd;
 
+	bool beginning_shoot = false;
+
 	bool moving;
 	float startMoving;
 	float startFiring;

@@ -81,7 +81,7 @@ public:
 	EntityMesh dir;
 	EntityMesh vec;
 
-
+	Shader* shader_lights = Shader::Get("data/shaders/skinning.vs", "data/shaders/textureLight.fs");
 
 	BulletNormal bullets_normal;
 	BulletAuto bullets_auto;

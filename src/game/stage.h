@@ -29,6 +29,8 @@ public:
 	bool keybind_shoot = false;
 	bool keybind_auto = false;
 
+
+
 	std::vector<bool> keybinds = { keybind_walk, keybind_jump, keybind_dash, keybind_shoot, keybind_auto };
 
 	StageManager::keys selected_keybind = StageManager::WALK;
@@ -52,6 +54,9 @@ public:
 	Shader* squareshader;
 	Shader* textShader;
 
+
+	float stage_start;
+
 	Texture* font;
 
 	Shader* shader;
@@ -61,6 +66,8 @@ public:
 
 	float sensitivity = 1;
 
+	float transitionStart = 0;
+
 	std::string nextStage;
 
 	Camera* camera; //our global camera
@@ -69,8 +76,11 @@ public:
 
 	bool transitioningPhase = false;
 	bool secondPhase = false;
+	bool beginIdle = true;
 	bool victory = false;
 	bool paused = false;
+
+	bool laugh = true;
 
 	//events
 	virtual void onKeyDown(SDL_KeyboardEvent event) {};

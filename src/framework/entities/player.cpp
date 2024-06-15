@@ -431,34 +431,42 @@ void Player::renderWithLights(Camera* camera) {
 			(Game::instance->time - timer_anim) / ANIM_TRANSLATIONTIME, &blended_skeleton);
 	}
 
-	Shader* shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/textureLight.fs");
+	if (!shader_lights) {
+		shader_lights = Shader::Get("data/shaders/skinning.vs", "data/shaders/textureLight.fs");
+	}
+
+	Shader* shader = shader_lights;
 
 	anim->assignTime(Game::instance->time);
-	shader->enable();
-	shader->setUniform("u_color", targetable ? material.color : Vector4(1,1,1,0.1 + 0.9 * (can_be_hit) * ((int)(Game::instance->time * 10) % 2)));
-	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 
-	shader->setUniform("u_normal_option", 0);
 
-	shader->setUniform("eye", camera->eye);
-	shader->setUniform("u_alpha", 30.0f);
-	shader->setUniform("u_specular", 0.2f);
-	shader->setUniform("u_ambient_light", StageManager::instance->ambient_night);
 
-	GameStage::lightToShader(GameStage::instance->mainLight, shader);
-	//for (Light* light : GameStage::instance->lights) GameStage::lightToShader(light, shader);
+	shader_lights->enable();
+	shader_lights->setUniform("u_color", targetable ? material.color : Vector4(1, 1, 1, 0.1 + 0.9 * (can_be_hit) * ((int)(Game::instance->time * 10) % 2)));
+	shader_lights->setUniform("u_viewprojection", camera->viewprojection_matrix);
+
+	float value = 0.0;
+	shader_lights->setUniform("u_normal_option", value);
+
+	shader_lights->setUniform("eye", camera->eye);
+	shader_lights->setUniform("u_alpha", 30.0f);
+	shader_lights->setUniform("u_specular", 0.2f);
+	shader_lights->setUniform("u_ambient_light", StageManager::instance->ambient_night);
+
+	GameStage::lightToShader(GameStage::instance->mainLight, shader_lights);
+	//for (Light* light : GameStage::instance->lights) GameStage::lightToShader(light, shader_lights);
 
 	if (material.diffuse) {
-		shader->setTexture("u_texture", material.diffuse, 0);
+		shader_lights->setTexture("u_texture", material.diffuse, 0);
 	}
-	shader->setUniform("u_model", model);
-	shader->setUniform("u_time", Game::instance->time);
+	shader_lights->setUniform("u_model", model);
+	shader_lights->setUniform("u_time", Game::instance->time);
 
 	mesh->renderAnimated(GL_TRIANGLES, &blended_skeleton);
 	// std::cout << isAnimated << std::endl;
 
-	// Disable shader after finishing rendering
-	shader->disable();
+	// Disable shader_lights after finishing rendering
+	shader_lights->disable();
 
 	if (!stage->transitioningPhase) {
 		staminashader->enable();

@@ -29,7 +29,7 @@ Enemy::Enemy(Mesh* mesh, const Material& material, const std::string& name, bool
 
 void Enemy::render(Camera* camera)
 {
-	particle_emitter->render(camera);
+
 
 	for (int i = bullets.size() - 1; i >= 0; i--)
 		bullets[i]->render(camera);
@@ -90,6 +90,8 @@ void Enemy::render(Camera* camera)
 	// Disable shader after finishing rendering
 	material.shader->disable();
 
+	Stage* stage = StageManager::instance->currStage;
+	if (stage->secondPhase) particle_emitter->render(camera);
 
 	//showHitbox(camera);
 }
@@ -181,41 +183,52 @@ Vector3 Enemy::updateSubframe(float time_elapsed) {
 
 void Enemy::update(float time_elapsed)
 {
-	particle_emitter->update(time_elapsed);
+	//std::cout << "Aqui llega? ";
 
 	Stage* stage = StageManager::instance->currStage;
 
-	GameStage* gs =  (GameStage*) (stage);
-	if (!gs) {
-		std::cout << "NULL";
+	if (stage->transitioningPhase && !a_transition_started) {
+		a_timer = Game::instance->time;
+		a_transition_started = true;
+		if (!stage->secondPhase) {
+			this->model.rotate(this->model.getYawRotationToAimTo(stage->player->model.getTranslation()) * time_elapsed * 10, Vector3::UP);
+			a_current = RAGE;
+			a_latest = RAGE;
+		}
+		else if (stage->beginIdle) {
+			a_current = LAUGH;
+			a_latest = LAUGH;
+		}
+		else {
+			a_current = DEATH;
+			a_latest = DEATH;
+		}
 		return;
 	}
-	else {
-		if (stage->transitioningPhase && !a_transition_started) {
-			a_timer = Game::instance->time;
-			a_transition_started = true;
-			if (!stage->secondPhase) {
-				this->model.rotate(this->model.getYawRotationToAimTo(stage->player->model.getTranslation()) * time_elapsed * 10, Vector3::UP);
-				a_current = RAGE;
-				a_latest = RAGE;
-			}
-			else {
-				a_current = DEATH;
-				a_latest = DEATH;
-			}
-			return;
-		}
-	}
+
 
 	a_transition_started = false;
+
+	//std::cout << "Llega?" << std::endl;
+
+	if (stage->secondPhase) {
+		particle_emitter->setRate(0.1);
+		particle_emitter->update(time_elapsed);
+		particle_emitter->setSpawnPosition(model.getTranslation());
+	}
 
 	Vector3 player_center = getPosition() + Vector3(0, 1.2, 0);
 
 	if (moving) {
-		this->model.rotate(this->model.getYawRotationToAimTo(Vector3(current_destination.x, 0, current_destination.y)) * time_elapsed * 10, Vector3::UP);
+		if (beginning_shoot) {
+			this->model.rotate(this->model.getYawRotationToAimTo(Vector3(current_destination.x, 0, current_destination.y)) * 3 * time_elapsed, Vector3::UP);
+		}
+		else {
+			this->model.rotate(this->model.getYawRotationToAimTo(Vector3(current_destination.x, 0, current_destination.y)) * time_elapsed, Vector3::UP);
+		}
 	}
 	else if (looking_at_player) {
-		this->model.rotate(this->model.getYawRotationToAimTo(stage->player->model.getTranslation()) * time_elapsed * 10, Vector3::UP);
+		this->model.rotate(this->model.getYawRotationToAimTo(stage->player->model.getTranslation()) * 3 * time_elapsed, Vector3::UP);
 	}
 
 	//player_center.y += PLAYER_HEIGHT;
@@ -287,14 +300,16 @@ void Enemy::update(float time_elapsed)
 			a_current = CASTING;
 			a_timer = Game::instance->time;
 		}
-		if (moving && bulletCD + .5 <= Game::instance->time) {
-			bulletCD = Game::instance->time;
-			//for (int i = 0; i <= 3; ++i)
-			//	Patterns::circle(stage->player->getPosition() + Vector3(0, 0.6, 0), Vector3((1.0f / 3.0f * i)*2-1, 0, 1).normalize(), model, bullets, amount[0], bullet_shaders[0], bullet_textures[0], bullet_meshes[0], false);
-			Matrix44 rotate_matrix = Matrix44();
-			rotate_matrix.setRotation(((int)Game::instance->time % 314) / 100, Vector3::UP);
-			Matrix44 _m = model;
-			Patterns::circle2(_m, bullets_normal, 20);
+		if (beginning_shoot) {
+			if (moving && bulletCD + .5 <= Game::instance->time) {
+				bulletCD = Game::instance->time;
+				//for (int i = 0; i <= 3; ++i)
+				//	Patterns::circle(stage->player->getPosition() + Vector3(0, 0.6, 0), Vector3((1.0f / 3.0f * i)*2-1, 0, 1).normalize(), model, bullets, amount[0], bullet_shaders[0], bullet_textures[0], bullet_meshes[0], false);
+				Matrix44 rotate_matrix = Matrix44();
+				rotate_matrix.setRotation(((int)Game::instance->time % 314) / 100, Vector3::UP);
+				Matrix44 _m = model;
+				Patterns::circle2(_m, bullets_normal, 20);
+			}
 		}
 	}
 	else
@@ -307,6 +322,7 @@ void Enemy::update(float time_elapsed)
 
 			moving = true; 
 			looking_at_player = true;
+			beginning_shoot = true;
 
 			startMoving = Game::instance->time;
 

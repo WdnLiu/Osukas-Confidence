@@ -404,8 +404,8 @@ void LoreStageBegin::loadBadEnding() {
 	float starttime = 0;
 	float endtime = 0;
 
-	pushBox(0, 0, 2, 1, Vector4(0, 0, 0, 1), Vector2(gamewidth / 2, gameheight /2), Vector2(gamewidth, gameheight));
-	pushBox(0, 0, 0, 8, Vector4(0, 0, 0, 0.7), Vector2(gamewidth / 2, gameheight /2 ), Vector2(gamewidth, gameheight));
+	pushBox(0, 0, 2, 1, Vector4(1, 1, 1, 1), Vector2(gamewidth / 2, gameheight /2), Vector2(gamewidth, gameheight));
+	pushBox(0, 1, 0, 8, Vector4(0, 0, 0, 0.7), Vector2(gamewidth / 2, gameheight /2 ), Vector2(gamewidth, gameheight));
 
 	starttime = 0; endtime = 8;
 	Vector2 pos = Vector2(gamewidth / 2, gameheight / 2), posdt = Vector2(0, 0);
@@ -432,6 +432,7 @@ void LoreStageBegin::loadBadEnding() {
 	pushTransition(5.5, 2.5, 1, 2, Vector4(1, 1, 1, 1));
 
 	Audio::Get("data/audio/loredump/badending1.wav");
+	Audio::Get("data/audio/loredump/flashbanggg.mp3");
 }
 
 LoreStageBegin::LoreStageBegin(cinematic flag)
@@ -626,6 +627,7 @@ void LoreStageBegin::update(double seconds_elapsed)
 		}
 	}
 	else if (flag == BADENDING) {
+		othersounds = Audio::Play("data/audio/loredump/flashbanggg.mp3", 0.7);
 		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 10) {
 			StageManager::instance->transitioning = true;
 			Audio::Stop(backgmusic);

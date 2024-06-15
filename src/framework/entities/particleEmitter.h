@@ -24,7 +24,7 @@ class ParticleEmitter : EntityMesh {
 
 	// Properties of the emitter
 	int last_id = 0;
-	float emit_rate = 1.0f;
+	float emit_rate = 0.03f;
 	float emit_timer = 0.f;
 	
 	Vector3 emit_position;
@@ -32,8 +32,8 @@ class ParticleEmitter : EntityMesh {
 	float random_factor = 0.0f;
 
 	// Properties of the particles
-	float max_ttl = 1;
-	std::vector<Vector4> colors = { Vector4(1) };
+	float max_ttl = 2;
+	std::vector<Vector4> colors;
 	std::vector<float> sizes;
 	std::vector<float> alphas;
 	Texture* texture = nullptr;
@@ -59,18 +59,23 @@ public:
 		this->emit_position = Vector3(0,10,0);
 		this->emit_velocity = Vector3(0,1,0);
 
-		//this->sizes = {
-		//	0, 1, 0.7, 0.5, 0.35, 0.25, 0.17, 0.12, 0.08, 0.05, 0.035, 0.02, 0.01, 0
-		//};
-		//this->alphas = {
-		//	0, 1, 0.7, 0.5, 0.35, 0.25, 0.17, 0.12, 0.08, 0.05, 0.035, 0.02, 0.01, 0
-		//};
-
 		this->sizes = {
-			1, 1
+			0.5, 0.2, 0.1, 0.05, 0.025, 0.01, 0
 		};
 		this->alphas = {
-			1, 1
+			0, 1, 0.7, 0.5, 0.35, 0.25, 0.17, 0.12, 0.08, 0.05, 0.035, 0.02, 0.01, 0
+		};
+		this->colors = {
+			Vector4(.4,.4,.4,.4)
+		};
+
+		
+
+		//this->sizes = {
+		//	0, 1, 0
+		//};
+		this->alphas = {
+			0.5, 0.5, 0.5
 		};
 
 		this->texture = Texture::Get("data/textures/particle.png");
@@ -95,6 +100,13 @@ public:
 		particles.resize(max_particles);
 	}
 
+	void setSpawnPosition(Vector3 spawn_pos) {
+		this->emit_position = spawn_pos;
+	}
+
+	void setRate(float rate) {
+		this->emit_rate = rate;
+	}
 
 	void clearParticles();
 
