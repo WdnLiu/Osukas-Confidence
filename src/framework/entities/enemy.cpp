@@ -23,10 +23,14 @@ Enemy::Enemy(Mesh* mesh, const Material& material, const std::string& name, bool
 
 	direction.x = (rand() % 2) * 2 - 1;
 	direction.z = (rand() % 2) * 2 - 1;
+
+	particle_emitter = new ParticleEmitter();
 }
 
 void Enemy::render(Camera* camera)
 {
+	particle_emitter->render(camera);
+
 	for (int i = bullets.size() - 1; i >= 0; i--)
 		bullets[i]->render(camera);
 	bullets_normal.render(camera);
@@ -85,6 +89,7 @@ void Enemy::render(Camera* camera)
 
 	// Disable shader after finishing rendering
 	material.shader->disable();
+
 
 	//showHitbox(camera);
 }
@@ -176,6 +181,8 @@ Vector3 Enemy::updateSubframe(float time_elapsed) {
 
 void Enemy::update(float time_elapsed)
 {
+	particle_emitter->update(time_elapsed);
+
 	Stage* stage = StageManager::instance->currStage;
 
 	GameStage* gs =  (GameStage*) (stage);

@@ -8,8 +8,10 @@
 struct sParticle {
 	int id;
 	Vector3 position;
+	Vector3 velocity;
 	float ttl;
 	float rotation;
+
 	bool active = false;
 };
 
@@ -22,15 +24,15 @@ class ParticleEmitter : EntityMesh {
 
 	// Properties of the emitter
 	int last_id = 0;
-	float emit_rate = 0.1f;
+	float emit_rate = 1.0f;
 	float emit_timer = 0.f;
 	
-	Vector3 emit_position = {  };
+	Vector3 emit_position;
 	Vector3 emit_velocity;
 	float random_factor = 0.0f;
 
 	// Properties of the particles
-	float max_ttl;
+	float max_ttl = 1;
 	std::vector<Vector4> colors = { Vector4(1) };
 	std::vector<float> sizes;
 	std::vector<float> alphas;
@@ -53,8 +55,48 @@ class ParticleEmitter : EntityMesh {
 	void emit();
 
 public:
+	ParticleEmitter() {
+		this->emit_position = Vector3(0,10,0);
+		this->emit_velocity = Vector3(0,1,0);
 
-	ParticleEmitter();
+		//this->sizes = {
+		//	0, 1, 0.7, 0.5, 0.35, 0.25, 0.17, 0.12, 0.08, 0.05, 0.035, 0.02, 0.01, 0
+		//};
+		//this->alphas = {
+		//	0, 1, 0.7, 0.5, 0.35, 0.25, 0.17, 0.12, 0.08, 0.05, 0.035, 0.02, 0.01, 0
+		//};
+
+		this->sizes = {
+			1, 1
+		};
+		this->alphas = {
+			1, 1
+		};
+
+		this->texture = Texture::Get("data/textures/particle.png");
+		material.diffuse = Texture::Get("data/textures/particle.png");
+
+		particles.resize(max_particles);
+		
+	}
+	ParticleEmitter(Vector3 emit_position, Vector3 emit_velocity, Texture* texture, float maxttl = 1) {
+		this->emit_position = emit_position;
+		this->emit_velocity = emit_velocity;
+
+		this->sizes = {
+			0, 1, 0.7, 0.5, 0.35, 0.25, 0.17, 0.12, 0.08, 0.05, 0.035, 0.02, 0.01, 0
+		};
+		this->alphas = {
+			0, 1, 0.7, 0.5, 0.35, 0.25, 0.17, 0.12, 0.08, 0.05, 0.035, 0.02, 0.01, 0
+		};
+
+		this->texture = texture;
+
+		particles.resize(max_particles);
+	}
+
+
+	void clearParticles();
 
 	void render(Camera* camera);
 	void update(float seconds_elapsed);

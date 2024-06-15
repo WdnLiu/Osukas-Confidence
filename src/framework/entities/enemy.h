@@ -4,6 +4,7 @@
 
 #include "framework/entities/entityCollider.h"
 #include "framework/entities/bullet/patterns.h"
+#include "framework/entities/particleEmitter.h"
 #define HITBOX_RAD 0.1
 #define PLAYER_HEIGHT 0.6
 
@@ -55,6 +56,8 @@ public:
 	Shader* flat_shader = Shader::Get("data/shaders/basic.vs", "data/shaders/flat.fs");
 
 	Mesh* shadow_mesh = Mesh::Get("data/meshes/shadow.obj");
+
+	ParticleEmitter* particle_emitter;
 
 	enum pattern {
 		SWIRL, //
