@@ -815,10 +815,10 @@ void GameStage::update(double seconds_elapsed)
 
 			if (transitionStart + 1 < Game::instance->time && !ragescream) {
 				if (beginIdle) {
-					Audio::Play("data/audio/laugh.mp3");
+					othersounds = Audio::Play("data/audio/laugh.mp3");
 				}
 				else {
-					Audio::Play("data/audio/maolixiscream.wav");
+					othersounds = Audio::Play("data/audio/maolixiscream.wav");
 				}
 				ragescream = true;
 			}
@@ -826,7 +826,9 @@ void GameStage::update(double seconds_elapsed)
 				enemy->particle_emitter->update(seconds_elapsed);
 				enemy->particle_emitter->setSpawnPosition(enemy->model.getTranslation());
 			}
-
+			if (!secondPhase && !beginIdle) {
+				currentAmbient = Vector3(clamp((Game::instance->time - transitionStart)/TRANSITION_TIME, 0.25, 0.7), clamp((Game::instance->time - transitionStart) / TRANSITION_TIME, 0.25, 0.7), clamp((Game::instance->time - transitionStart) / TRANSITION_TIME, 0.45, 0.8));
+			}
 
 			player->bullets.clear();
 			enemy->bullets.clear();
@@ -848,7 +850,7 @@ void GameStage::update(double seconds_elapsed)
 			enemy->particle_emitter->setRate((Game::instance->time - transitionStart));
 
 			if (transitionStart + 1 < Game::instance->time && !ragescream) {
-				Audio::Play("data/audio/maolixidie.mp3");
+				othersounds = Audio::Play("data/audio/maolixidie.mp3");
 				ragescream = true;
 
 			}
@@ -871,21 +873,29 @@ void GameStage::update(double seconds_elapsed)
 		if (Game::instance->time - transitionStart >= TRANSITION_TIME && !secondPhase && !beginIdle)
 		{
 			Audio::Stop(backgmusic);
+			Audio::Stop(othersounds);
 			backgmusic = Audio::Play("data/audio/bgm2.mp3");
 			transitioningPhase = false;
 			ragescream = false;
 			secondPhase = true;
+			enemy->beginning_shoot = false;
+			enemy->moving = true;
+			enemy->startMoving = Game::instance->time;
 			currentAmbient = Vector3(0.7, 0.7, 0.8);
 			currSkyBox = cubemap2;
+			enemy->a_current = Enemy::WALKING;
 
 		}
 		else if (Game::instance->time - transitionStart >= TRANSITION_TIME_WIN && secondPhase) {
 			Audio::Stop(backgmusic);
+			Audio::Stop(othersounds);
 			transitioningPhase = false;
 			victory = true;
 		}
 		else if (Game::instance->time - transitionStart >= TRANSITION_TIME_START && beginIdle) {
 			Audio::Stop(backgmusic);
+			Audio::Stop(othersounds);
+			enemy->beginning_shoot = false;
 			transitioningPhase = false;
 			ragescream = false;
 			beginIdle = false;

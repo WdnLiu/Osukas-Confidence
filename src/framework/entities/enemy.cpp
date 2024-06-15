@@ -145,8 +145,16 @@ void Enemy::sphere_bullet_collision(Vector3 position, float radius) {
 		}
 		else {
 			if (bullet->active) {
-				Vector3 newpos = position - model.frontVector() * 2 + Vector3(0,1*radius, 0);
-				if (bullet->mesh->testSphereCollision(bullet->model, newpos, 2 * radius, data.colPoint, data.colNormal)) {
+				//Vector3 newpos = position - model.frontVector() * 2 + Vector3(0,1*radius, 0);
+				if (bullet->mesh->testSphereCollision(bullet->model, position, radius, data.colPoint, data.colNormal)) {
+					colliding = true;
+					bullet->active = false;
+					stage->anxiety_dt += bullet->damage;
+					Audio::Play("data/audio/whip.wav");
+				}
+			}
+			if (bullet->active) {
+				if (bullet->mesh->testSphereCollision(bullet->model, position + Vector3(0,radius,0), radius, data.colPoint, data.colNormal)) {
 					colliding = true;
 					bullet->active = false;
 					stage->anxiety_dt += bullet->damage;

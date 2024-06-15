@@ -32,7 +32,7 @@ void ParticleEmitter::render(Camera* camera) {
 	Vector3 right = camera->getLocalVector(Vector3(1,0,0)); //camera local vector right
 	Vector3 top = camera->getLocalVector(Vector3::UP); // camera top
 
-	std::cout << "# OF ACTIVE PARTICLES: " << active_particles << std::endl;
+	//std::cout << "# OF ACTIVE PARTICLES: " << active_particles << std::endl;
 
 	for (sParticle& p : particles) {
 		if (!p.active) continue;
@@ -136,7 +136,7 @@ void ParticleEmitter::render(Camera* camera) {
 void ParticleEmitter::update(float delta_time) {
 	emit_timer += delta_time;
 
-	std::cout << "Particle Updating!" << std::endl;
+	//std::cout << "Particle Updating!" << std::endl;
 
 	if (emit_timer > emit_rate) {
 		emit();
