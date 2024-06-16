@@ -24,6 +24,9 @@ public:
 	int othersounds;
 
 	bool keybind_walk = false;
+	bool keybind_left = false;
+	bool keybind_right = false;
+	bool keybind_back = false;
 	bool keybind_jump = false;
 	bool keybind_dash = false;
 	bool keybind_shoot = false;
@@ -31,7 +34,7 @@ public:
 
 
 
-	std::vector<bool> keybinds = { keybind_walk, keybind_jump, keybind_dash, keybind_shoot, keybind_auto };
+	std::vector<bool> keybinds = { keybind_walk, keybind_left, keybind_right, keybind_back, keybind_jump, keybind_dash, keybind_shoot, keybind_auto };
 
 	StageManager::keys selected_keybind = StageManager::WALK;
 

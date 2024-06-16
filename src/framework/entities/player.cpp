@@ -482,7 +482,13 @@ void Player::renderWithLights(Camera* camera) {
 
 	Shader* shader = shader_lights;
 
-	anim->assignTime(Game::instance->time);
+	if (grounded) {
+		anim->assignTime(Game::instance->time);
+	}
+	else {
+		anim->assignTime((Game::instance->time - timer_jump)/3);
+	}
+	
 
 
 
@@ -690,19 +696,19 @@ float Player::updateSubframe(float delta_time) {
 
 	Matrix44 m = model;
 	m.rotate(m.getYawRotationToAimTo(stage->enemy->getPosition()), Vector3::UP);
-	if (Input::isKeyPressed(SDL_SCANCODE_D)) {
+	if (Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_right))  ) {
 		if (!dashing) m_spd = DEFAULT_SPD;
 		direction += -5*m.rightVector();
 	}
-	if (Input::isKeyPressed(SDL_SCANCODE_S)) {
+	if (Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_back))) {
 		if (!dashing) m_spd = DEFAULT_SPD;
 		direction += -5*m.frontVector();
 	}
-	if (Input::isKeyPressed(SDL_SCANCODE_A)) {
+	if (Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_left))) {
 		if (!dashing) m_spd = DEFAULT_SPD;
 		direction += 5*m.rightVector();
 	}
-
+	direction.normalize();
 	//direction = Vector3(0.0f);
 
 	//if (Input::isKeyPressed(StageManager::instance->k_walk)) direction += getFront();
@@ -844,7 +850,7 @@ void Player::update(float delta_time) {
 
 	float dot = direction.dot(model.frontVector());
 	Matrix44 m = model;
-	m.rotate(m.getYawRotationToAimTo(stage->enemy->getPosition()), Vector3::UP);
+	//m.rotate(m.getYawRotationToAimTo(stage->enemy->getPosition()), Vector3::UP);
 
 	float dotfront = direction.dot(m.frontVector());
 	float dotside = direction.dot(m.rightVector());
@@ -872,7 +878,7 @@ void Player::update(float delta_time) {
 			}
 		}
 	}
-	else if (dotside < -0.9) {
+	else if (dotside < -0.6) {
 		if (dashing) {
 			if (current_animation != RUNNING_RIGHT) {
 				last_animation = current_animation;
@@ -895,7 +901,7 @@ void Player::update(float delta_time) {
 			}
 		}
 	}
-	else if (dotside > 0.9) {
+	else if (dotside > 0.6) {
 		if (dashing) {
 			if (current_animation != RUNNING_LEFT) {
 				last_animation = current_animation;

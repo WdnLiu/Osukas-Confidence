@@ -1137,6 +1137,7 @@ void GameStage::switchstage(int flag) {
 		enemy->bullets_giantball.clearInstances();
 
 
+
 		enemy->bullets_normal.damage = 2;
 		enemy->bullets_normal_orange.damage = 2;
 		enemy->bullets_normal_yellow.damage = 2;
@@ -1145,6 +1146,7 @@ void GameStage::switchstage(int flag) {
 		enemy->bullets_smallball.damage = 4;
 
 		enemy->particle_emitter->setRate(0.03);
+		enemy->particle_emitter->clearParticles();
 		//backgmusic = Audio::Play("data/audio/bgm.mp3");
 
 		transitioningPhase = true;

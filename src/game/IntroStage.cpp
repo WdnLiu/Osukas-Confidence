@@ -127,7 +127,7 @@ IntroStage::IntroStage()
 
 	renderFBO = NULL;
 
-	keynames = { "Walk", "Jump", "Dash", "Shoot", "AutoShoot" };
+	keynames = { "Forward", "Left", "Back" , "Right","Jump", "Dash", "Shoot", "AutoShoot"};
 
     // Create our camera
 	camera = new Camera();
@@ -182,20 +182,20 @@ IntroStage::IntroStage()
 	EntityUI* settings = new EntityUI(pos, size, material, height ,buttontype);
 	background.push_back(settings);
 
-	pos = Vector2(width / 2, height / 2 + 120 + 100 + 30); size = Vector2(700, 60);
+	pos = Vector2(width / 2, height / 2 + 120 + 100 + 30 + 100); size = Vector2(700, 60);
 	material.diffuse = Texture::Get("data/textures/menu/backbutton.PNG");
 	buttontype = ExitButton;
 	EntityUI* back = new EntityUI(pos, size, material, height, buttontype);
 	optionbuttons.push_back(back);
 
-	pos = Vector2(width / 2, height / 2 + 35 + 120), size = Vector2(420, 50);
+	pos = Vector2(width / 2, height / 2 + 35 + 120 + 100), size = Vector2(420, 50);
 	material.diffuse = Texture::Get("data/textures/menu/bar.PNG");
 	material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	buttontype = UndefinedButton;
 	EntityUI* sensbarbg = new EntityUI(pos, size, material, height, buttontype);
 	optionbuttons.push_back(sensbarbg);
 
-	pos = Vector2(width / 2, height / 2 + 35 + 120), size = Vector2(400, 30);
+	pos = Vector2(width / 2, height / 2 + 35 + 120 + 100), size = Vector2(400, 30);
 	material.diffuse = Texture::Get("data/textures/menu/bar.PNG");
 	material.shader = Shader::Get("data/shaders/basic2.vs", "data/shaders/texture3.fs");
 	material.color = Vector4(0, 0, 0, 1);
@@ -203,7 +203,7 @@ IntroStage::IntroStage()
 	EntityUI* sensbar = new EntityUI(pos, size, material, height, Vector4(0,0,0,1), Vector4(0.2, 0.2, 0.2, 1), buttontype);
 	optionbuttons.push_back(sensbar);
 
-	pos = Vector2(width / 2, height / 2 - 50 + 120), size = Vector2(250, 40);
+	pos = Vector2(width / 2, height / 2 - 50 + 120 + 100), size = Vector2(250, 40);
 	material.diffuse = Texture::Get("data/textures/menu/sens.PNG");
 	material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	buttontype = UndefinedButton;
@@ -217,8 +217,8 @@ IntroStage::IntroStage()
 	pos = Vector2(width / 2, height / 2), size = Vector2(width,height);
 	bigblacksquare = EntityUI(pos, size, squaremat, height, UndefinedButton);
 
-	for (int i = 0; i < 5; i++) {
-		pos = Vector2(width / 2 + 100, height / 2 - 250 - 120 + 60 * i + 100), size = Vector2(250, 50);
+	for (int i = 0; i < 8; i++) {
+		pos = Vector2(width / 2 + 100, height / 2 - 250 - 120 + 60 * i + 100 - 50), size = Vector2(250, 50);
 		material.diffuse = Texture::Get("data/textures/menu/bar.PNG");
 		material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 		buttontype = (eButtonID) (KeyWalk + i);
@@ -299,13 +299,13 @@ void IntroStage::render()
 		else {
 			filler = "00";
 		}
-		drawText(Game::instance->window_width / 2.0f - 20, Game::instance->window_height / 2.0f + 100,filler + std::to_string(((int)floor(StageManager::instance->sensitivity * 100))), Vector3(1), 2);
+		drawText(Game::instance->window_width / 2.0f - 20, Game::instance->window_height / 2.0f + 200,filler + std::to_string(((int)floor(StageManager::instance->sensitivity * 100))), Vector3(1), 2);
 		for (int i = 0; i < optionbuttons.size(); i++) {
 			optionbuttons[i]->render(camera2D);
 		}
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i < 8; ++i) {
 			float width = Game::instance->window_width, height = Game::instance->window_height;
-			Vector2 pos = Vector2(width / 2 - 120, height / 2 - 250 - 120 + 60 * i);
+			Vector2 pos = Vector2(width / 2 - 120, height / 2 - 250 - 120 + 60 * i - 50);
 			drawText(pos.x + 110, pos.y - 10 + 100, SDL_GetKeyName(*StageManager::instance->keyset[i]), Vector3(0), 3);
 			drawText(pos.x - 100, pos.y - 10 + 100, keynames[i], Vector3(1), 3);
 		}
@@ -313,10 +313,10 @@ void IntroStage::render()
 			bigblacksquare.color = Vector4(0, 0, 0, 0.5);
 			bigblacksquare.render(camera2D);
 		}
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i < 8; ++i) {
 			if (i == selected_keybind) {
 				float width = Game::instance->window_width, height = Game::instance->window_height;
-				Vector2 pos = Vector2(width / 2 - 120, height / 2 - 250 - 120 + 60 * i);
+				Vector2 pos = Vector2(width / 2 - 120, height / 2 - 250 - 120 + 60 * i - 50);
 				drawText(pos.x - 100, pos.y - 10 + 100, keynames[i], Vector3(1), 3);
 			}
 		}

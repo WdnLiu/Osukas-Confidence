@@ -123,6 +123,18 @@ void EntityUI::update(float delta_time) {
 				stage->selected_keybind = StageManager::WALK;
 				stage->keybinds[stage->selected_keybind] = true;
 				break;
+			case KeyLeft:
+				stage->selected_keybind = StageManager::LEFT;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyRight:
+				stage->selected_keybind = StageManager::RIGHT;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyBack:
+				stage->selected_keybind = StageManager::BACK;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
 			case KeyJump:
 				stage->selected_keybind = StageManager::JUMP;
 				stage->keybinds[stage->selected_keybind] = true;
