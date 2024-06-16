@@ -1109,6 +1109,8 @@ void GameStage::switchstage(int flag) {
 		enemy->bullets_normal_purple.clearInstances();
 		enemy->bullets_smallball.clearInstances();
 		enemy->bullets_giantball.clearInstances();
+
+		enemy->particle_emitter->setRate(0.03);
 		//backgmusic = Audio::Play("data/audio/bgm.mp3");
 
 		transitioningPhase = true;
