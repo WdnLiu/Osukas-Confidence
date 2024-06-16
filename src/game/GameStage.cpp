@@ -410,6 +410,7 @@ GameStage::GameStage()
 	Audio::Get("data/audio/dash_0.wav");
 	Audio::Get("data/audio/maolixiscream.wav");
 	Audio::Get("data/audio/maolixidie.mp3");
+	Audio::Get("data/audio/laugh.mp3");
 	Audio::Get("data/audio/bgm.mp3", BASS_SAMPLE_LOOP);
 	Audio::Get("data/audio/bgm2.mp3", BASS_SAMPLE_LOOP);
 
@@ -724,8 +725,15 @@ void GameStage::render(void)
 
 		std::sort(root_transparent->children.begin(), root_transparent->children.end(), compareFunction);
 
+
+
 		enemy->renderWithLights(camera);
-		player->renderWithLights(camera);
+
+		if (transitionStart + 1 < Game::instance->time) {
+			enemy->particle_emitter->render(camera);
+		}
+
+		player->renderWithLights(camera); 
 
 		root_transparent->renderWithLights(camera);
 
@@ -772,7 +780,7 @@ void GameStage::render(void)
 
 	// Render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
-	drawText(2, 400, std::to_string(player->targetable), Vector3(1, 1, 1), 5);
+	//drawText(2, 400, std::to_string(player->targetable), Vector3(1, 1, 1), 5);
 
 	//amogus.render(camera2D);
 	if (!transitioningPhase) renderHUD();
@@ -806,8 +814,20 @@ void GameStage::update(double seconds_elapsed)
 			Audio::Volume(backgmusic, clamp(1 - (Game::instance->time - transitionStart)/4.8,0,1));
 
 			if (transitionStart + 1 < Game::instance->time && !ragescream) {
-				Audio::Play("data/audio/maolixiscream.wav");
+				if (beginIdle) {
+					othersounds = Audio::Play("data/audio/laugh.mp3");
+				}
+				else {
+					othersounds = Audio::Play("data/audio/maolixiscream.wav");
+				}
 				ragescream = true;
+			}
+			if (transitionStart + 1 < Game::instance->time && !beginIdle) {
+				enemy->particle_emitter->update(seconds_elapsed);
+				enemy->particle_emitter->setSpawnPosition(enemy->model.getTranslation());
+			}
+			if (!secondPhase && !beginIdle) {
+				currentAmbient = Vector3(clamp((Game::instance->time - transitionStart)/TRANSITION_TIME, 0.25, 0.7), clamp((Game::instance->time - transitionStart) / TRANSITION_TIME, 0.25, 0.7), clamp((Game::instance->time - transitionStart) / TRANSITION_TIME, 0.45, 0.8));
 			}
 
 			player->bullets.clear();
@@ -816,6 +836,9 @@ void GameStage::update(double seconds_elapsed)
 			player->bullets_normal.clearInstances();
 			enemy->bullets_ball.clearInstances();
 			enemy->bullets_normal.clearInstances();
+			enemy->bullets_normal_yellow.clearInstances();
+			enemy->bullets_normal_orange.clearInstances();
+			enemy->bullets_normal_purple.clearInstances();
 			enemy->bullets_smallball.clearInstances();
 			enemy->bullets_giantball.clearInstances();
 
@@ -824,17 +847,27 @@ void GameStage::update(double seconds_elapsed)
 		else {
 			camera->lookAt(enemy->getPosition() + 10 * enemy->getFront() + Vector3(0, 6, 0), enemy->getPosition(), camera->up);
 			Audio::Volume(backgmusic, clamp(1 - (Game::instance->time - transitionStart)/5, 0, 1));
+			
+			enemy->particle_emitter->update(seconds_elapsed);
+			enemy->particle_emitter->setSpawnPosition(enemy->model.getTranslation());
+			enemy->particle_emitter->setRate((Game::instance->time - transitionStart));
 
 			if (transitionStart + 1 < Game::instance->time && !ragescream) {
-				Audio::Play("data/audio/maolixidie.mp3");
+				othersounds = Audio::Play("data/audio/maolixidie.mp3");
 				ragescream = true;
+
 			}
+
+
 
 			player->bullets.clear();
 			enemy->bullets.clear();
 			player->bullets_auto.clearInstances();
 			player->bullets_normal.clearInstances();
 			enemy->bullets_ball.clearInstances();
+			enemy->bullets_normal_yellow.clearInstances();
+			enemy->bullets_normal_orange.clearInstances();
+			enemy->bullets_normal_purple.clearInstances();
 			enemy->bullets_normal.clearInstances();
 			enemy->bullets_smallball.clearInstances();
 			enemy->bullets_giantball.clearInstances();
@@ -843,21 +876,39 @@ void GameStage::update(double seconds_elapsed)
 			enemy->model.translate(Vector3(0, -0.035*seconds_elapsed, 0));
 		}
 
-		if (Game::instance->time - transitionStart >= TRANSITION_TIME && !secondPhase)
+		if (Game::instance->time - transitionStart >= TRANSITION_TIME && !secondPhase && !beginIdle)
 		{
 			Audio::Stop(backgmusic);
+			Audio::Stop(othersounds);
 			backgmusic = Audio::Play("data/audio/bgm2.mp3");
 			transitioningPhase = false;
 			ragescream = false;
 			secondPhase = true;
+			enemy->beginning_shoot = false;
+			enemy->moving = true;
+			enemy->startMoving = Game::instance->time;
 			currentAmbient = Vector3(0.7, 0.7, 0.8);
 			currSkyBox = cubemap2;
+			enemy->a_current = Enemy::WALKING;
 
 		}
 		else if (Game::instance->time - transitionStart >= TRANSITION_TIME_WIN && secondPhase) {
 			Audio::Stop(backgmusic);
+			Audio::Stop(othersounds);
 			transitioningPhase = false;
 			victory = true;
+		}
+		else if (Game::instance->time - transitionStart >= TRANSITION_TIME_START && beginIdle) {
+			Audio::Stop(backgmusic);
+			Audio::Stop(othersounds);
+			enemy->beginning_shoot = false;
+			transitioningPhase = false;
+			ragescream = false;
+			beginIdle = false;
+			enemy->moving = true;
+			enemy->startMoving = Game::instance->time;
+			enemy->a_current = Enemy::WALKING;
+			backgmusic = Audio::Play("data/audio/bgm.mp3");
 		}
 		return;
 	}
@@ -994,6 +1045,7 @@ void GameStage::onKeyDown(SDL_KeyboardEvent event)
 	switch (event.keysym.sym)
 	{
 	case SDLK_ESCAPE: nextStage = "IntroStage"; StageManager::instance->transitioning = true; //ESC key, kill the app
+	case SDLK_a: transitionStart = -10;
 	}
 	//switch (event.keysym.sym)
 	//{
@@ -1052,9 +1104,32 @@ void GameStage::switchstage(int flag) {
 		player->bullets_normal.clearInstances();
 		enemy->bullets_ball.clearInstances();
 		enemy->bullets_normal.clearInstances();
+		enemy->bullets_normal_yellow.clearInstances();
+		enemy->bullets_normal_orange.clearInstances();
+		enemy->bullets_normal_purple.clearInstances();
 		enemy->bullets_smallball.clearInstances();
 		enemy->bullets_giantball.clearInstances();
-		backgmusic = Audio::Play("data/audio/bgm.mp3");
+		//backgmusic = Audio::Play("data/audio/bgm.mp3");
+
+		transitioningPhase = true;
+		secondPhase = false;
+		beginIdle = true;
+		victory = false;
+		paused = false;
+		ragescream = false;
+
+		laugh = true;
+
+		enemy->beginning_shoot = false;
+
+		enemy->a_timer = Game::instance->time;
+		transitionStart = Game::instance->time;
+
+		enemy->a_current = Enemy::LAUGH;
+		enemy->a_latest = Enemy::LAUGH;
+		enemy->model.rotate(enemy->model.getYawRotationToAimTo(player->getPosition()), Vector3::UP);
+
+		stage_start = Game::instance->time;
 	}
 }
 

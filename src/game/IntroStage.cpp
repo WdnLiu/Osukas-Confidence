@@ -125,6 +125,7 @@ IntroStage::IntroStage()
 {
 	font = Texture::Get("data/textures/fontpool.PNG");
 
+	renderFBO = NULL;
 
 	keynames = { "Walk", "Jump", "Dash", "Shoot", "AutoShoot" };
 
@@ -148,38 +149,40 @@ IntroStage::IntroStage()
 	material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	eButtonID buttontype = UndefinedButton;
 	EntityUI* bg = new EntityUI(pos, size, material, height, buttontype);
-	buttons.push_back(bg);
+	background.push_back(bg);
 
 	pos = Vector2(width / 2, height / 2), size = Vector2(width, height);
-	material.color = Vector4(1);
+	material.color = Vector4(0, 0, 0, 0.7);
 	material.diffuse = Texture::Get("data/textures/menu/bar.PNG");
 	material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	buttontype = UndefinedButton;
-	EntityUI* dim = new EntityUI(pos, size, material, height, Vector4(0,0,0,0.7), Vector4(1,1,1,1));
-	buttons.push_back(dim);
+	EntityUI* dim = new EntityUI(pos, size, material, height, Vector4(0,0,0,0.7), Vector4(0, 0, 0, 0.7));
+	background.push_back(dim);
 
+	material.color = Vector4(1);
+	pos = Vector2(width / 2, height / 2 - 200); size = Vector2(500, 500);
+	material.diffuse = Texture::Get("data/textures/menu/titel.png");
+	buttontype = UndefinedButton;
+	EntityUI* titel = new EntityUI(pos, size, material, height, buttontype);
+	background.push_back(titel);
 
-	pos = Vector2(width / 2, height / 2 + 150), size = Vector2(500, 200);
+	pos = Vector2(width / 2, height / 2 + 200), size = Vector2(700, 200);
 	material.color = Vector4(1);
 	material.diffuse = Texture::Get("data/textures/menu/playbutton.PNG");
 	material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	buttontype = PlayButton;
 	EntityUI* play = new EntityUI(pos, size, material, height, buttontype);
-	buttons.push_back(play);
+	background.push_back(play);
 
-	pos = Vector2(width / 2, height / 2 - 100); size = Vector2(800, 500);
-	material.diffuse = Texture::Get("data/textures/menu/titel.png");
-	buttontype = UndefinedButton;
-	EntityUI* titel = new EntityUI(pos, size, material, height, buttontype);
-	buttons.push_back(titel);
 
-	pos = Vector2(width / 2, height / 2 + 310); size = Vector2(500, 60);
+
+	pos = Vector2(width / 2, height / 2 + 360); size = Vector2(700, 60);
 	material.diffuse = Texture::Get("data/textures/menu/settingsbutton.PNG");
 	buttontype = OptionsButton;
 	EntityUI* settings = new EntityUI(pos, size, material, height ,buttontype);
-	buttons.push_back(settings);
+	background.push_back(settings);
 
-	pos = Vector2(width / 2, height / 2 + 120 + 100 + 30); size = Vector2(300, 100);
+	pos = Vector2(width / 2, height / 2 + 120 + 100 + 30); size = Vector2(700, 60);
 	material.diffuse = Texture::Get("data/textures/menu/backbutton.PNG");
 	buttontype = ExitButton;
 	EntityUI* back = new EntityUI(pos, size, material, height, buttontype);
@@ -245,6 +248,46 @@ void IntroStage::render()
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
+
+	int gamewidth = Game::instance->window_width;
+	int gameheight = Game::instance->window_height;
+
+	float width = Game::instance->window_width, height = Game::instance->window_height;
+	if (!renderFBO) {
+		renderFBO = new RenderToTexture();
+		renderFBO->create(width, height);
+	}
+	renderFBO->enable();
+
+	// Set the clear color (the background color)
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	// Clear the window and the depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+	// Set flags
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
+	if (!options) {
+		for (int i = 0; i < background.size(); i++) {
+			background[i]->render(camera2D);
+		}
+	}
+
+
+	glDisable(GL_DEPTH_TEST);
+	renderFBO->disable();
+
+	Shader* shader = Shader::Get("data/shaders/postfx.vs", "data/shaders/postfx3.fs");
+	shader->enable();
+	shader->setUniform("iResolution", Vector2(renderFBO->width, renderFBO->height));
+
+	renderFBO->toViewport(shader);
+
+
 	if (options) {
 		std::string filler;
 		if (StageManager::instance->sensitivity >= 1) {
@@ -307,6 +350,9 @@ void IntroStage::update(double seconds_elapsed)
 		for (int i = 0; i < buttons.size(); i++) {
 			buttons[i]->update(seconds_elapsed);
 		}
+		for (int i = 0; i < background.size(); i++) {
+			background[i]->update(seconds_elapsed);
+		}
 	}
 
 }
@@ -319,6 +365,7 @@ void IntroStage::switchstage(int flag) {
 	}
 	else {
 		play_button_pressed = false;
+		mouse_clicked = false;
 		Game::instance->mouse_locked = false;
 		SDL_ShowCursor(!Game::instance->mouse_locked);
 		SDL_SetRelativeMouseMode((SDL_bool)(Game::instance->mouse_locked));

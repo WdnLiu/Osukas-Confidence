@@ -94,7 +94,7 @@ public:
 		for (int i = 0; i < amount; i++) {
 			Matrix44 _m = model;
 			//_m.translate(Vector3((i - (amount / 2)) * 2.5, 0, 0));
-			_m.rotate(i * (PI/16) -  amount * (PI/32), Vector3::UP);
+			_m.rotate(i * (PI/16) -  (amount - 1) * (PI/32), Vector3::UP);
 			bullets.addInstance(_m, speed);
 		}
 	}

@@ -106,6 +106,51 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				return;
 			}
 		}
+		BulletNormal& bno = stage->enemy->bullets_normal_orange;
+		for (int i = 0; i < bno.models.size(); i++) {
+			Matrix44& m = stage->enemy->bullets_normal_orange.models[i];
+			sCollisionData data;
+			if (targetable && bno.mesh->testSphereCollision(m, position, radius, data.colPoint, data.colNormal)) {
+				stage->anxiety_dt -= bno.damage;
+				bno.despawnBullet(i);
+				targetable = false;
+				startHit = Game::instance->time;
+				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
+				Audio::Play("data/audio/h3_" + audiofile);
+				std::cout << "data/audio/h3_" + audiofile;
+				return;
+			}
+		}
+		BulletNormal& bny = stage->enemy->bullets_normal_yellow;
+		for (int i = 0; i < bny.models.size(); i++) {
+			Matrix44& m = stage->enemy->bullets_normal_yellow.models[i];
+			sCollisionData data;
+			if (targetable && bny.mesh->testSphereCollision(m, position, radius, data.colPoint, data.colNormal)) {
+				stage->anxiety_dt -= bny.damage;
+				bny.despawnBullet(i);
+				targetable = false;
+				startHit = Game::instance->time;
+				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
+				Audio::Play("data/audio/h3_" + audiofile);
+				std::cout << "data/audio/h3_" + audiofile;
+				return;
+			}
+		}
+		BulletNormal& bnp = stage->enemy->bullets_normal_purple;
+		for (int i = 0; i < bnp.models.size(); i++) {
+			Matrix44& m = stage->enemy->bullets_normal_purple.models[i];
+			sCollisionData data;
+			if (targetable && bnp.mesh->testSphereCollision(m, position, radius, data.colPoint, data.colNormal)) {
+				stage->anxiety_dt -= bnp.damage;
+				bnp.despawnBullet(i);
+				targetable = false;
+				startHit = Game::instance->time;
+				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
+				Audio::Play("data/audio/h3_" + audiofile);
+				std::cout << "data/audio/h3_" + audiofile;
+				return;
+			}
+		}
 	}
 	//if (isHit != targetable) Audio::Play("data/audio/whip.wav");
 }
@@ -431,55 +476,92 @@ void Player::renderWithLights(Camera* camera) {
 			(Game::instance->time - timer_anim) / ANIM_TRANSLATIONTIME, &blended_skeleton);
 	}
 
-	Shader* shader = Shader::Get("data/shaders/skinning.vs", "data/shaders/textureLight.fs");
+	if (!shader_lights) {
+		shader_lights = Shader::Get("data/shaders/skinning.vs", "data/shaders/textureLight.fs");
+	}
+
+	Shader* shader = shader_lights;
 
 	anim->assignTime(Game::instance->time);
-	shader->enable();
-	shader->setUniform("u_color", targetable ? material.color : Vector4(1,1,1,0.1 + 0.9 * (can_be_hit) * ((int)(Game::instance->time * 10) % 2)));
-	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 
-	shader->setUniform("u_normal_option", 0);
 
-	shader->setUniform("eye", camera->eye);
-	shader->setUniform("u_alpha", 30.0f);
-	shader->setUniform("u_specular", 0.2f);
-	shader->setUniform("u_ambient_light", StageManager::instance->ambient_night);
 
-	GameStage::lightToShader(GameStage::instance->mainLight, shader);
-	//for (Light* light : GameStage::instance->lights) GameStage::lightToShader(light, shader);
+	shader_lights->enable();
+	shader_lights->setUniform("u_color", targetable ? material.color : Vector4(1, 1, 1, 0.1 + 0.9 * (can_be_hit) * ((int)(Game::instance->time * 10) % 2)));
+	shader_lights->setUniform("u_viewprojection", camera->viewprojection_matrix);
+
+	float value = 0.0;
+	shader_lights->setUniform("u_normal_option", value);
+
+	shader_lights->setUniform("eye", camera->eye);
+	shader_lights->setUniform("u_alpha", 30.0f);
+	shader_lights->setUniform("u_specular", 0.2f);
+	shader_lights->setUniform("u_ambient_light", StageManager::instance->ambient_night);
+
+	GameStage::lightToShader(GameStage::instance->mainLight, shader_lights);
+	//for (Light* light : GameStage::instance->lights) GameStage::lightToShader(light, shader_lights);
 
 	if (material.diffuse) {
-		shader->setTexture("u_texture", material.diffuse, 0);
+		shader_lights->setTexture("u_texture", material.diffuse, 0);
 	}
-	shader->setUniform("u_model", model);
-	shader->setUniform("u_time", Game::instance->time);
+	shader_lights->setUniform("u_model", model);
+	shader_lights->setUniform("u_time", Game::instance->time);
 
 	mesh->renderAnimated(GL_TRIANGLES, &blended_skeleton);
 	// std::cout << isAnimated << std::endl;
 
-	// Disable shader after finishing rendering
-	shader->disable();
+	// Disable shader_lights after finishing rendering
+	shader_lights->disable();
 
 	if (!stage->transitioningPhase) {
-		staminashader->enable();
 
 		Matrix44 stam = model;
-		stam.setTranslation(Vector3(model.getTranslation().x, ground_y + 0.05, model.getTranslation().z));
-		stam.rotate(stam.getYawRotationToAimTo(stage->enemy->getPosition()) - PI, Vector3::UP);
+		stam.translate(Vector3(0, (ground_y - model.getTranslation().y) + 0.05, 0));
+		Matrix44 stam2 = stam;
+		stam2.rotate(stam2.getYawRotationToAimTo(stage->enemy->getPosition()), Vector3::UP);
+		Matrix44 stam3 = stam2;
+
+		float dot = stam.frontVector().normalize().dot(stam2.frontVector());
+		bool enough_mana = (mana > shoot_cost[(int)bt]);
+
+		veccircleshader->enable();
+
+		veccircleshader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+		veccircleshader->setUniform("u_model", stam);
+		if (dot > 0.98) veccircleshader->setUniform("u_color", Vector4(0, enough_mana + 0.7 * !enough_mana, !enough_mana, 1));
+		else veccircleshader->setUniform("u_color", Vector4(enough_mana, enough_mana + 0.7 * !enough_mana, 1, 1));
+		circlemesh->render(GL_TRIANGLES);
+
+		float dist = clamp((getPositionGround().distance(stage->enemy->getPositionGround()) / 10) - 0.2f, 0.2, 2);
+		stam2.scale(Vector3(1, 1, dist));
+
+		veccircleshader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+		veccircleshader->setUniform("u_model", stam2);
+		veccircleshader->setUniform("u_color", Vector4(1, 1, 1, clamp(dist - 0.4, 0, 1)));
+		vector->render(GL_TRIANGLES);
+
+		veccircleshader->disable();
+
+
+		stam3.rotate(PI, Vector3::UP);
+
+
+		staminashader->enable();
 
 		staminashader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-		staminashader->setUniform("u_model", stam);
+		staminashader->setUniform("u_model", stam3);
 		staminashader->setUniform("u_color", Vector4(0, 1, 0, 1));
 		staminashader->setUniform("u_percentage", stamina / 200);
 		staminashader->setUniform("u_decrease", staminadec / 200);
 		//flat_shader->setTexture("u_texture", staminatext, 0);
-
 		staminabar->render(GL_TRIANGLES);
 
 		staminashader->disable();
 
-		dir.render(camera);
-		vec.render(camera);
+
+
+		//dir->render(camera);
+		//vec->render(camera);
 	}
 
 
@@ -583,7 +665,8 @@ void Player::render(Camera* camera) {
 	bullets_auto.render(camera);
 
 
-	dir.render(camera);
+	dir->render(camera);
+	vec->render(camera);
 
 	//showHitbox(camera);
 };
@@ -625,11 +708,15 @@ float Player::updateSubframe(float delta_time) {
 
 	for (int i = 0; i < bullets.size(); i++) {
 		Bullet* b = bullets[i];
-		if (Game::instance->time - b->timer_spawn > 5 || b->to_delete) {
+		if (b->to_delete) {
 			bullets.erase((bullets.begin() + i));
 			delete b;
 			bullet_idx_last++;
 			free_bullets++;
+		}
+		else if (Game::instance->time - b->timer_spawn > 5) {
+			b->active = false;
+			b->update(delta_time);
 		}
 		else b->update(delta_time);
 	}
@@ -773,29 +860,23 @@ void Player::update(float delta_time) {
 	this->sphere_bullet_collision(player_center + Vector3::UP * 6 * HITBOX_RAD + minusPlayerHeight, HITBOX_RAD);
 	this->sphere_bullet_collision(player_center + Vector3::UP * 8 * HITBOX_RAD + minusPlayerHeight, HITBOX_RAD);
 
-	Matrix44 _m = model;
-	dir.model = _m;
-	dir.model.translate(Vector3(0, 0.01 - (_m.getTranslation().y - ground_y), 0));
-	vec.model = _m;
-	Vector3 enemypos = stage->enemy->getPosition();
-	enemypos.y = 0;
-	Vector3 playerpos = getPosition();
-	playerpos.y = 0;
+	//Matrix44 _m = this->model;
+	//dir->model = _m;
+	//dir->model.translate(Vector3(0, 0.01 - (_m.getTranslation().y - ground_y), 0));
+	//vec->model = _m;
+	//Vector3 enemypos = stage->enemy->getPosition();
+	//enemypos.y = 0;
+	//Vector3 playerpos = getPosition();
+	//playerpos.y = 0;
 
-	vec.model.rotate(vec.model.getYawRotationToAimTo(enemypos), Vector3::UP);
+	//vec->model.rotate(vec->model.getYawRotationToAimTo(enemypos), Vector3::UP);
 
-	float dist = clamp((playerpos.distance(enemypos) / 10) - 0.2f, 0.2, 2);
-	vec.model.scale(Vector3(1, 1, dist));
+	//float dist = clamp((playerpos.distance(enemypos) / 10) - 0.2f, 0.2, 2);
+	//vec->model.scale(Vector3(1, 1, dist));
 
-	vec.model.translateGlobal(vec.model.frontVector().normalize() + Vector3(0, 0.2 - (_m.getTranslation().y - ground_y), 0));
+	//vec->model.translateGlobal(vec->model.frontVector().normalize() + Vector3(0, 0.2 - (_m.getTranslation().y - ground_y), 0));
 
-	float dot = vec.model.frontVector().normalize().dot(dir.model.frontVector());
-	bool enough_mana = (mana > shoot_cost[bt]);
 
-	if (dot > 0.98) {
-		dir.material.color = Vector4(0, enough_mana + (!enough_mana * 0.7), !enough_mana, 1);
-	}
-	else dir.material.color = Vector4(enough_mana, enough_mana + (!enough_mana * 0.7), 1, 1);
 	
 }
 

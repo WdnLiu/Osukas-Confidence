@@ -2,6 +2,7 @@
 #include "stage.h"
 
 #define TRANSITION_TIME 5
+#define TRANSITION_TIME_START 7
 #define TRANSITION_TIME_WIN 6
 
 class Audio;
@@ -27,7 +28,7 @@ public:
 	void update(double seconds_elapsed) override;
 
 	//Second phase transitioning variables
-	float transitionStart = 0;
+
 	void flashBang();
 
 	float trees_shoot = 0;
