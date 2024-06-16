@@ -11,6 +11,8 @@
 #include "framework/entities/entityUI.h"
 #include "StageManager.h"
 
+float offset_keybinds_left = -200;
+
 void Stage::resize()
 {
 	float width = Game::instance->window_width, height = Game::instance->window_height;
@@ -127,7 +129,7 @@ IntroStage::IntroStage()
 
 	renderFBO = NULL;
 
-	keynames = { "Forward", "Left", "Back" , "Right","Jump", "Dash", "Shoot", "AutoShoot"};
+	keynames = { "Forward", "Left", "Back" , "Right","Jump", "Dash", "Shoot", "AutoShoot", "Shoot 1", "Shoot 2", "Shoot 3"};
 
     // Create our camera
 	camera = new Camera();
@@ -218,10 +220,20 @@ IntroStage::IntroStage()
 	bigblacksquare = EntityUI(pos, size, squaremat, height, UndefinedButton);
 
 	for (int i = 0; i < 8; i++) {
-		pos = Vector2(width / 2 + 100, height / 2 - 250 - 120 + 60 * i + 100 - 50), size = Vector2(250, 50);
+		pos = Vector2(width / 2 + 100 + offset_keybinds_left, height / 2 - 250 - 120 + 60 * i + 100 - 50), size = Vector2(250, 50);
 		material.diffuse = Texture::Get("data/textures/menu/bar.PNG");
 		material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 		buttontype = (eButtonID) (KeyWalk + i);
+		EntityUI* key1 = new EntityUI(pos, size, material, height, buttontype);
+		optionbuttons.push_back(key1);
+	}
+
+
+	for (int i = 8; i < 11; i++) {
+		pos = Vector2(width / 2 + 100 + 200, height / 2 - 250 - 120 + 60 * (i - 8) + 100 - 50), size = Vector2(50, 50);
+		material.diffuse = Texture::Get("data/textures/menu/bar.PNG");
+		material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+		buttontype = (eButtonID)(KeyWalk + i);
 		EntityUI* key1 = new EntityUI(pos, size, material, height, buttontype);
 		optionbuttons.push_back(key1);
 	}
@@ -305,9 +317,15 @@ void IntroStage::render()
 		}
 		for (int i = 0; i < 8; ++i) {
 			float width = Game::instance->window_width, height = Game::instance->window_height;
-			Vector2 pos = Vector2(width / 2 - 120, height / 2 - 250 - 120 + 60 * i - 50);
+			Vector2 pos = Vector2(width / 2 - 120 + offset_keybinds_left, height / 2 - 250 - 120 + 60 * i - 50);
 			drawText(pos.x + 110, pos.y - 10 + 100, SDL_GetKeyName(*StageManager::instance->keyset[i]), Vector3(0), 3);
 			drawText(pos.x - 100, pos.y - 10 + 100, keynames[i], Vector3(1), 3);
+		}
+		for (int i = 8; i < 11; ++i) {
+			float width = Game::instance->window_width, height = Game::instance->window_height;
+			Vector2 pos = Vector2(width / 2 - 120 + 300, height / 2 - 250 - 120 + 60 * (i - 8) - 50);
+			drawText(pos.x + 110, pos.y - 10 + 100 , SDL_GetKeyName(*StageManager::instance->keyset[i]), Vector3(0), 3);
+			drawText(pos.x - 50, pos.y - 10 + 100, keynames[i], Vector3(1), 3);
 		}
 		if (keybinds[selected_keybind]) {
 			bigblacksquare.color = Vector4(0, 0, 0, 0.5);
@@ -316,8 +334,15 @@ void IntroStage::render()
 		for (int i = 0; i < 8; ++i) {
 			if (i == selected_keybind) {
 				float width = Game::instance->window_width, height = Game::instance->window_height;
-				Vector2 pos = Vector2(width / 2 - 120, height / 2 - 250 - 120 + 60 * i - 50);
+				Vector2 pos = Vector2(width / 2 - 120 + offset_keybinds_left, height / 2 - 250 - 120 + 60 * i - 50);
 				drawText(pos.x - 100, pos.y - 10 + 100, keynames[i], Vector3(1), 3);
+			}
+		}
+		for (int i = 8; i < 11; ++i) {
+			if (i == selected_keybind) {
+				float width = Game::instance->window_width, height = Game::instance->window_height;
+				Vector2 pos = Vector2(width / 2 - 120 + 300, height / 2 - 250 - 120 + 60 * (i - 8) - 50);
+				drawText(pos.x - 50, pos.y - 10 + 100, keynames[i], Vector3(1), 3);
 			}
 		}
 	}

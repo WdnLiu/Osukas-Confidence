@@ -18,7 +18,10 @@ enum eButtonID {
 	KeyJump, 
 	KeyDash,
 	KeyShoot,
-	KeyAuto
+	KeyAuto,
+	KeyS1,
+	KeyS2,
+	KeyS3
 	// ...
 };
 

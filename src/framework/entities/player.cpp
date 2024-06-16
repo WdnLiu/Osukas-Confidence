@@ -1016,13 +1016,13 @@ void Player::onKeyUp(SDL_KeyboardEvent event)
 void Player::onKeyDown(SDL_KeyboardEvent event)
 {
 	if (timer_bullet_general > knockback_time[bt]) {
-		if (event.keysym.sym == SDLK_1) {
+		if (event.keysym.sym == StageManager::instance->k_s1) {
 			bt = circle;
 		}
-		if (event.keysym.sym == SDLK_2) {
+		if (event.keysym.sym == StageManager::instance->k_s2) {
 			bt = shotgun;
 		}
-		if (event.keysym.sym == SDLK_3) {
+		if (event.keysym.sym == StageManager::instance->k_s3) {
 			bt = sniper;
 		}
 	}

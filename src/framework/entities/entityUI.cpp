@@ -151,7 +151,20 @@ void EntityUI::update(float delta_time) {
 				stage->selected_keybind = StageManager::AUTO;
 				stage->keybinds[stage->selected_keybind] = true;
 				break;
+			case KeyS1:
+				stage->selected_keybind = StageManager::S1;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyS2:
+				stage->selected_keybind = StageManager::S2;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
+			case KeyS3:
+				stage->selected_keybind = StageManager::S3;
+				stage->keybinds[stage->selected_keybind] = true;
+				break;
 			}
+
 		}
 		else if (Input::isMousePressed(SDL_BUTTON_LEFT)) {
 			stage->mouse_clicked = true;
