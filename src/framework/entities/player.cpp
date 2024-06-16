@@ -683,20 +683,24 @@ float Player::updateSubframe(float delta_time) {
 	Stage* stage = StageManager::instance->currStage;
 	float time = Game::instance->time;
 	direction = model.frontVector();
-	if ((Input::isKeyPressed( SDL_GetScancodeFromKey(StageManager::instance->k_walk)) && !dashing /* && stage->mouse_locked*/)) m_spd = DEFAULT_SPD;
+	if ((Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_walk)) /* && stage->mouse_locked*/)) {
+		if (!dashing) m_spd = DEFAULT_SPD;
+		direction +=  5*model.frontVector();
+	}
+
 	Matrix44 m = model;
 	m.rotate(m.getYawRotationToAimTo(stage->enemy->getPosition()), Vector3::UP);
 	if (Input::isKeyPressed(SDL_SCANCODE_D)) {
 		if (!dashing) m_spd = DEFAULT_SPD;
-		direction = -m.rightVector();
+		direction += -5*m.rightVector();
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_S)) {
 		if (!dashing) m_spd = DEFAULT_SPD;
-		direction = -m.frontVector();
+		direction += -5*m.frontVector();
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) {
 		if (!dashing) m_spd = DEFAULT_SPD;
-		direction = m.rightVector();
+		direction += 5*m.rightVector();
 	}
 
 	//direction = Vector3(0.0f);
