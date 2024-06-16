@@ -92,7 +92,7 @@ void ParticleEmitter::render(Camera* camera) {
 
 	//std::cout << "Particle quads done!" << std::endl;
 
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -100,7 +100,7 @@ void ParticleEmitter::render(Camera* camera) {
 
 	if (!material.shader) {
 		std::cout << "No shader!";
-		material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+		material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture4.fs");
 	}
 
 

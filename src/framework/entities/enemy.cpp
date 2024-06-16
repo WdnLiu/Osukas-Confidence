@@ -164,6 +164,14 @@ void Enemy::sphere_bullet_collision(Vector3 position, float radius) {
 					Audio::Play("data/audio/whip.wav");
 				}
 			}
+			if (bullet->active) {
+				if (bullet->mesh->testSphereCollision(bullet->model, position + Vector3(0, 2 * radius, 0), radius, data.colPoint, data.colNormal)) {
+					colliding = true;
+					bullet->active = false;
+					stage->anxiety_dt += bullet->damage;
+					Audio::Play("data/audio/whip.wav");
+				}
+			}
 		}
 	}
 	BulletNormal& bns = stage->player->bullets_normal;

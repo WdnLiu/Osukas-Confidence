@@ -52,6 +52,9 @@ Texture* slotauto;
 Texture* selected;
 Texture* shoot_tuto;
 
+Texture* mana_text;
+Texture* anxiety_text;
+
 EntityUI amogus;
 
 GameStage* GameStage::instance = NULL;
@@ -326,6 +329,8 @@ GameStage::GameStage()
 	slotauto = Texture::Get("data/textures/auto.PNG");
 	selected = Texture::Get("data/textures/selectslot.PNG");
 	shoot_tuto = Texture::Get("data/textures/q.PNG");
+	mana_text = Texture::Get("data/textures/mana.PNG");
+	anxiety_text = Texture::Get("data/textures/confidence.PNG");
 
 	player->material = *mat;
 	player->isAnimated = true;
@@ -444,30 +449,40 @@ void GameStage::renderHUD()
 		clamp(anxiety, 0, 200),
 		2)/200.0f, anxiety_dt/200.f);
 
+
+	barPosition = Vector2(30 + 80, gameHeight - 40 - 15 + 30);
+	barSize = Vector2(150, 35);
+	renderPic(barPosition, barSize, anxiety_text);
+
 	barPosition = Vector2(30 + gameWidth * 0.15f, gameHeight - 55 - 30);
 	barSize = Vector2(gameWidth*0.3f, 20);
-
 	renderBar(barPosition, barSize, player->mana/300.0f, Vector3(0.3, 0.1, 0.8));
 
 
-	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - 70);
-	barSize = Vector2(70, 70);
+	//barPosition = Vector2(30 + 35, gameHeight - 55 - 30 - 22);
+	//barSize = Vector2(125, 30);
+	//renderPic(barPosition, barSize, mana_text);
+
+	float squaresize = 100;
+
+	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - squaresize);
+	barSize = Vector2(squaresize, squaresize);
 
 	renderPic(barPosition, barSize, slot1);
 
-	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - 140);
-	barSize = Vector2(70, 70);
+	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - squaresize * 2);
+	barSize = Vector2(squaresize, squaresize);
 
 	renderPic(barPosition, barSize, slot2);
 
-	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - 210);
-	barSize = Vector2(70, 70);
+	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - squaresize * 3);
+	barSize = Vector2(squaresize, squaresize);
 
 	renderPic(barPosition, barSize, slot3);
 
 	bullet_type bt = player->bt;
-	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - 70 - 70 * (bt - 1));
-	barSize = Vector2(70, 70);
+	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - squaresize - squaresize * (bt - 1));
+	barSize = Vector2(squaresize, squaresize);
 
 	bool enough_mana = (player->mana > player->shoot_cost[bt]);
 	if (enough_mana && !enoughmana) {
@@ -477,11 +492,11 @@ void GameStage::renderHUD()
 	else if (!enough_mana) enoughmana = false;
 	renderSquare(barPosition, barSize, (time - player->timer_bullet[bt]) / player->shoot_cooldown[bt], Vector4(0, enough_mana + (!enough_mana * 0.7), !enough_mana, 0.3));
 	renderPic(barPosition, barSize, selected);
-	if (((int)(time - enoughmanatimer) % 2) && enough_mana && enoughmanatimer + 5 < time && player->timer_bullet[bt] + 5 < time) renderPic(barPosition, barSize, shoot_tuto);
+	if (((int)(time - enoughmanatimer) % 2) && enough_mana && enoughmanatimer + 5 < time && player->timer_bullet[bt] + 5 < time) drawText(barPosition.x - 15, gameHeight - barPosition.y - 15, SDL_GetKeyName(StageManager::instance->k_shoot),Vector3(1), 5); /*renderPic(barPosition, barSize, shoot_tuto);*/
 
 
-	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - 210 - 80);
-	barSize = Vector2(70, 70);
+	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - squaresize * 3 - squaresize - 20);
+	barSize = Vector2(squaresize, squaresize);
 
 	renderPic(barPosition, barSize, slotauto);
 
@@ -779,7 +794,7 @@ void GameStage::render(void)
 	//mainLight->shadowMapFBO->depth_texture->toViewport();
 
 	// Render the FPS, Draw Calls, etc
-	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
+	if (drawtext) drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
 	//drawText(2, 400, std::to_string(player->targetable), Vector3(1, 1, 1), 5);
 
 	//amogus.render(camera2D);
@@ -891,6 +906,13 @@ void GameStage::update(double seconds_elapsed)
 			currSkyBox = cubemap2;
 			enemy->a_current = Enemy::WALKING;
 
+			enemy->bullets_normal.damage=3;
+			enemy->bullets_normal_orange.damage=3;
+			enemy->bullets_normal_yellow.damage=3;
+			enemy->bullets_normal_purple.damage=3;
+			enemy->bullets_ball.damage=10;
+			enemy->bullets_smallball.damage=6;
+
 		}
 		else if (Game::instance->time - transitionStart >= TRANSITION_TIME_WIN && secondPhase) {
 			Audio::Stop(backgmusic);
@@ -916,6 +938,7 @@ void GameStage::update(double seconds_elapsed)
 	if (paused) return;
 
 	if (Input::isKeyPressed(SDL_SCANCODE_L)) anxiety += 100 * seconds_elapsed;
+	if (Input::isKeyPressed(SDL_SCANCODE_K)) anxiety -= 100 * seconds_elapsed;
 
 	if (!secondPhase && anxiety >= 200*0.6)
 	{
@@ -1041,6 +1064,9 @@ void GameStage::onKeyDown(SDL_KeyboardEvent event)
 		SDL_ShowCursor(!mouse_locked);
 		SDL_SetRelativeMouseMode((SDL_bool)(mouse_locked));
 	}
+	if (event.keysym.sym == SDLK_t) {
+		drawtext = !drawtext;
+	}
 
 	switch (event.keysym.sym)
 	{
@@ -1109,6 +1135,14 @@ void GameStage::switchstage(int flag) {
 		enemy->bullets_normal_purple.clearInstances();
 		enemy->bullets_smallball.clearInstances();
 		enemy->bullets_giantball.clearInstances();
+
+
+		enemy->bullets_normal.damage = 2;
+		enemy->bullets_normal_orange.damage = 2;
+		enemy->bullets_normal_yellow.damage = 2;
+		enemy->bullets_normal_purple.damage = 2;
+		enemy->bullets_ball.damage = 8;
+		enemy->bullets_smallball.damage = 4;
 
 		enemy->particle_emitter->setRate(0.03);
 		//backgmusic = Audio::Play("data/audio/bgm.mp3");

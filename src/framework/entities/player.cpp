@@ -415,9 +415,7 @@ void Player::renderWithLights(Camera* camera) {
 
 
 	bool time = (Game::instance->time - timer_charge[bt]) > charge_cooldown[bt];
-	// Render Bullets
-	for (int i = bullets.size()-1; i >= 0; i--) 
-		bullets[i]->render(camera);
+
 
 
 	// Render the charging
@@ -582,7 +580,9 @@ void Player::renderWithLights(Camera* camera) {
 	bullets_auto.render(camera);
 
 
-
+	// Render Bullets
+	for (int i = bullets.size() - 1; i >= 0; i--)
+		bullets[i]->render(camera);
 
 
 
@@ -714,7 +714,7 @@ float Player::updateSubframe(float delta_time) {
 			bullet_idx_last++;
 			free_bullets++;
 		}
-		else if (Game::instance->time - b->timer_spawn > 5) {
+		else if (Game::instance->time - b->timer_spawn > 2.5) {
 			b->active = false;
 			b->update(delta_time);
 		}
@@ -722,7 +722,7 @@ float Player::updateSubframe(float delta_time) {
 	}
 
 
-	mana += (DEFAULT_COST - 1) * delta_time / (DEFAULT_FIRERATE);
+	mana += (DEFAULT_COST + 2) * delta_time / (DEFAULT_FIRERATE);
 	mana = clamp(mana, 0, 300);
 
 	//stamina += ((stamina) + 1) * delta_time;
