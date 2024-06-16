@@ -40,11 +40,9 @@ void IntroStage::renderLetter(Texture* font, Vector2 tileSize, char letter, Vect
 		}
 	}
 	else if (letter == -111) {
-		std::cout << letter;
 		selectedTile = Vector2('N' + 1 - 'A', 1);
 	}
 	else if (letter == -79) {
-		std::cout << letter;
 		selectedTile = Vector2('n' + 1 - 'a', 2);
 	}
 	else if (letter == ' ') {

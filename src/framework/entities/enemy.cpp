@@ -337,14 +337,14 @@ void Enemy::update(float time_elapsed)
 			moving = false;
 			startFiring = Game::instance->time;
 			float r = random(1); 
-			std::cout << std::endl << "The random number is: " << r << std::endl;
+			//std::cout << std::endl << "The random number is: " << r << std::endl;
 			r *= stage->secondPhase ? 13 : 7;
 			if (stage->secondPhase) {
 				if (r < 7)  r = random(1) * 13;
 			}
 			current_pattern = (pattern)clamp(floor(r), 0, (stage->secondPhase) ? 12 : 6);
 			//current_pattern = SHOTGUN;
-			std::cout << current_pattern << " " << r << std::endl;
+			//std::cout << current_pattern << " " << r << std::endl;
 			burstCount = 0;
 
 			a_latest = a_current;
@@ -407,7 +407,7 @@ void Enemy::update(float time_elapsed)
 				current_destination = next_destination;
 			}
 
-			std::cout << "current dest: " << current_destination.x << " " << current_destination.y << "\n";
+			//std::cout << "current dest: " << current_destination.x << " " << current_destination.y << "\n";
 		}
 		switch (current_pattern) {
 		case SWIRL:

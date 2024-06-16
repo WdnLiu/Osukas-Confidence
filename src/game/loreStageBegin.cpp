@@ -63,11 +63,9 @@ void LoreStageBegin::renderLetter(Texture* font, Vector2 tileSize, char letter, 
 		}
 	}
 	else if (letter == -111) {
-		std::cout << letter;
 		selectedTile = Vector2('N' + 1 - 'A' , 1);
 	}
 	else if (letter == -79) {
-		std::cout << letter;
 		selectedTile = Vector2('n' + 1 - 'a' , 2);
 	}
 	else if (letter == ' ') {
@@ -553,7 +551,7 @@ void LoreStageBegin::render()
 				std::string currentcontent = texts[i].content;
 				if (currentcontent.at(texts[i].currchars - 1) != ' ') {
 					if (texts[i].hasaudio && !texts[i].hasplayed) {
-						std::cout << "playing audio: " << "data/audio/loredump/" + texts[i].audiopath;
+						//std::cout << "playing audio: " << "data/audio/loredump/" + texts[i].audiopath;
 						othersounds = Audio::Play("data/audio/loredump/" + texts[i].audiopath);
 						texts[i].hasplayed = true;
 					}

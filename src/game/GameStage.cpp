@@ -193,13 +193,11 @@ bool GameStage::parseScene(const char* filename)
 			new_entity->isInstanced = true;
 			new_entity->models = render_data.models; // Add all instances
 			if (!new_entity->material.shader) new_entity->material.shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texturepixel.fs");
-			std::cout << "Instanced";
 		}
 		// Create normal entity
 		else {
 			new_entity->model = render_data.models[0];
 			if (!new_entity->material.shader) new_entity->material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texturepixel.fs");
-			std::cout << "Normal";
 		}
 
 		std::cout << " " << &new_entity->material.shader << std::endl;
@@ -469,16 +467,19 @@ void GameStage::renderHUD()
 	barSize = Vector2(squaresize, squaresize);
 
 	renderPic(barPosition, barSize, slot1);
+	drawText(45, 50 + squaresize, SDL_GetKeyName(StageManager::instance->k_s1), Vector3(1), 2.5);
 
 	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - squaresize * 2);
 	barSize = Vector2(squaresize, squaresize);
 
 	renderPic(barPosition, barSize, slot2);
+	drawText(45, 50 + squaresize * 2, SDL_GetKeyName(StageManager::instance->k_s2), Vector3(1), 2.5);
 
 	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - squaresize * 3);
 	barSize = Vector2(squaresize, squaresize);
 
 	renderPic(barPosition, barSize, slot3);
+	drawText(45, 50 + squaresize * 3, SDL_GetKeyName(StageManager::instance->k_s3), Vector3(1), 2.5);
 
 	bullet_type bt = player->bt;
 	barPosition = Vector2(45 + 35, gameHeight - 55 - 30 - squaresize - squaresize * (bt - 1));
@@ -499,6 +500,7 @@ void GameStage::renderHUD()
 	barSize = Vector2(squaresize, squaresize);
 
 	renderPic(barPosition, barSize, slotauto);
+	drawText(45, 50 + squaresize * 4 + 20, SDL_GetKeyName(StageManager::instance->k_auto), Vector3(1), 2.5);
 
 	enough_mana = (player->mana > player->shoot_cost[0]);
 	if (player->autoshoot) {
@@ -1071,7 +1073,7 @@ void GameStage::onKeyDown(SDL_KeyboardEvent event)
 	switch (event.keysym.sym)
 	{
 	case SDLK_ESCAPE: nextStage = "IntroStage"; StageManager::instance->transitioning = true; //ESC key, kill the app
-	case SDLK_x: transitionStart = -10;
+	case SDLK_x: transitionStart = -10; break;
 	}
 	//switch (event.keysym.sym)
 	//{

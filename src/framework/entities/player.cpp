@@ -27,7 +27,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 						startHit = Game::instance->time;
 						audiofile = std::to_string((int)floor(random(2.99))) + ".mp3";
 						Audio::Play("data/audio/h1_" + audiofile);
-						std::cout << "data/audio/h3_" + audiofile;
+						//std::cout << "data/audio/h3_" + audiofile;
 						return;
 					}
 				}
@@ -41,7 +41,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 					startHit = Game::instance->time;
 					audiofile = std::to_string((int)floor(random(2.99))) + ".mp3";
 					Audio::Play("data/audio/h1_" + audiofile);
-					std::cout << "data/audio/h3_" + audiofile;
+					//std::cout << "data/audio/h3_" + audiofile;
 					return;
 				}
 			}
@@ -57,7 +57,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(2.99))) + ".mp3";
 				Audio::Play("data/audio/h1_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -72,7 +72,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
 				Audio::Play("data/audio/h2_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -87,7 +87,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(2.99))) + ".mp3";
 				Audio::Play("data/audio/h1_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -102,7 +102,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
 				Audio::Play("data/audio/h3_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -117,7 +117,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
 				Audio::Play("data/audio/h3_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -132,7 +132,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
 				Audio::Play("data/audio/h3_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -147,7 +147,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
 				Audio::Play("data/audio/h3_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -204,9 +204,9 @@ void Player::shoot(bullet_type bullet_type = auto_aim) {
 			timer_bullet[bullet_type] = Game::instance->time;
 			mana -= shoot_cost[bullet_type];
 			free_bullets -= amount[bullet_type];
-			std::cout << "Aqui llega \n";
+			//std::cout << "Aqui llega \n";
 			Patterns::shotgun2(_m, bullets_normal, 20);
-			std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
+			//std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
 		}
 		return;
 	}
@@ -217,7 +217,7 @@ void Player::shoot(bullet_type bullet_type = auto_aim) {
 			mana -= shoot_cost[bullet_type];
 			free_bullets -= amount[bullet_type];
 			Patterns::autoAim2(_m, bullets_auto);
-			std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
+			//std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
 		}
 		return;
 	}
@@ -228,7 +228,7 @@ void Player::shoot(bullet_type bullet_type = auto_aim) {
 			mana -= shoot_cost[bullet_type];
 			free_bullets -= amount[bullet_type];
 			Patterns::horizontal3(_m, bullets_normal, 5, 20, 0.3);
-			std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
+			//std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
 		}
 		return;
 	}
@@ -242,7 +242,7 @@ void Player::shoot(bullet_type bullet_type = auto_aim) {
 		mana -= shoot_cost[bullet_type];
 		free_bullets -= amount[bullet_type];
 		patterns[bullet_type](StageManager::instance->currStage->enemy->getPosition() + Vector3(0, player_height, 0), forward, _m, bullets, amount[bullet_type], bullet_shaders[bullet_type], bullet_textures[bullet_type], bullet_meshes[bullet_type]);
-		std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
+		//std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
 	}
 }
 
@@ -1003,12 +1003,12 @@ void Player::onMouseButtonDown(SDL_MouseButtonEvent event)
 
 void Player::onKeyUp(SDL_KeyboardEvent event)
 {
-	if (event.keysym.sym == SDLK_SPACE)
+	if (event.keysym.sym == StageManager::instance->k_jump)
 	{
-		std::cout << "hehe" << std::endl;
+		//std::cout << "hehe" << std::endl;
 		jumping = false;
 	}
-	if (event.keysym.sym == SDLK_q) {
+	if (event.keysym.sym == StageManager::instance->k_shoot) {
 		canshoot = true;
 	}
 }
