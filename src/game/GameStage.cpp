@@ -836,6 +836,9 @@ void GameStage::update(double seconds_elapsed)
 			player->bullets_normal.clearInstances();
 			enemy->bullets_ball.clearInstances();
 			enemy->bullets_normal.clearInstances();
+			enemy->bullets_normal_yellow.clearInstances();
+			enemy->bullets_normal_orange.clearInstances();
+			enemy->bullets_normal_purple.clearInstances();
 			enemy->bullets_smallball.clearInstances();
 			enemy->bullets_giantball.clearInstances();
 
@@ -862,6 +865,9 @@ void GameStage::update(double seconds_elapsed)
 			player->bullets_auto.clearInstances();
 			player->bullets_normal.clearInstances();
 			enemy->bullets_ball.clearInstances();
+			enemy->bullets_normal_yellow.clearInstances();
+			enemy->bullets_normal_orange.clearInstances();
+			enemy->bullets_normal_purple.clearInstances();
 			enemy->bullets_normal.clearInstances();
 			enemy->bullets_smallball.clearInstances();
 			enemy->bullets_giantball.clearInstances();
@@ -1098,6 +1104,9 @@ void GameStage::switchstage(int flag) {
 		player->bullets_normal.clearInstances();
 		enemy->bullets_ball.clearInstances();
 		enemy->bullets_normal.clearInstances();
+		enemy->bullets_normal_yellow.clearInstances();
+		enemy->bullets_normal_orange.clearInstances();
+		enemy->bullets_normal_purple.clearInstances();
 		enemy->bullets_smallball.clearInstances();
 		enemy->bullets_giantball.clearInstances();
 		//backgmusic = Audio::Play("data/audio/bgm.mp3");

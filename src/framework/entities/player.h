@@ -78,8 +78,8 @@ public:
 
 	Matrix44 charge_model;
 
-	EntityMesh dir;
-	EntityMesh vec;
+	EntityMesh* dir;
+	EntityMesh* vec;
 
 	Shader* shader_lights = Shader::Get("data/shaders/skinning.vs", "data/shaders/textureLight.fs");
 
@@ -110,6 +110,13 @@ public:
 	Mesh* staminabar;
 	Texture* staminatext;
 	Shader* staminashader;
+
+
+	Mesh* vector;
+	Mesh* circlemesh;
+	Shader* veccircleshader;
+
+
 	float staminadec = 0;
 
 	// TODO: Hitbox stuff 
@@ -130,20 +137,24 @@ public:
 		loadTextures();
 		loadAnims();
 
-		dir.mesh = Mesh::Get("data/meshes/direction2.obj");
-		dir.material.diffuse = Texture::Get("data/meshes/directon.mtl");
-		dir.material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-		dir.material.color = Vector4(1);
+		dir = new EntityMesh();
+		vec = new EntityMesh();
 
-		vec.mesh = Mesh::Get("data/meshes/vec.obj");
-		vec.material.diffuse = Texture::Get("data/meshes/vec.mtl");
-		vec.material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-		vec.material.color = Vector4(0.5,0.5,1,0.2);
+		dir->mesh = Mesh::Get("data/meshes/dir9d.obj");
+		dir->material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+		dir->material.color = Vector4(1);
+
+		vec->mesh = Mesh::Get("data/meshes/vec.obj");
+		vec->material.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+		vec->material.color = Vector4(0.5,0.5,1,0.2);
 
 		//staminabar = Mesh::Get("data/meshes/nadada3.obj");
 		staminabar = Mesh::Get("data/meshes/donus.obj");
-		staminatext = Texture::Get("data/meshes/Textures/white.png");
 		staminashader = Shader::Get("data/shaders/basic2.vs", "data/shaders/texture2.fs");
+
+		circlemesh = Mesh::Get("data/meshes/dir9d.obj");
+		vector = Mesh::Get("data/meshes/vec.obj");
+		veccircleshader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 
 	};
 	Player(Mesh* mesh, const Material& material, const std::string& name = "", float speed = 0, float mana = DEFAULT_MANA) {

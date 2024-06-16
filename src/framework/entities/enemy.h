@@ -32,6 +32,9 @@ public:
 	Vector3 direction = Vector3(0.0f);
 
 	BulletNormal bullets_normal;
+	BulletNormal bullets_normal_yellow;
+	BulletNormal bullets_normal_purple;
+	BulletNormal bullets_normal_orange;
 	BulletNormal bullets_ball;
 	BulletResize bullets_giantball;
 	BulletNormal bullets_smallball;
@@ -105,6 +108,7 @@ public:
 	animations a_latest;
 	float a_timer = 0;
 
+	int shooting_color = 0;
 
 	std::vector<Animation*> animations;
 
@@ -132,7 +136,31 @@ public:
 		bullets_normal.fromPlayer = false;
 		bullets_normal.mesh = Mesh::Get("data/meshes/bullet.obj");
 		bullets_normal.material.color = Vector4(1, 0.0, 0.0, 1);
-		bullets_ball.damage = 5;
+		bullets_normal.damage = 1;
+
+		bullets_normal_yellow.isInstanced = true;
+		bullets_normal_yellow.material.shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
+		bullets_normal_yellow.material.diffuse = Texture::Get("data/meshes/bullet.mtl");
+		bullets_normal_yellow.fromPlayer = false;
+		bullets_normal_yellow.mesh = Mesh::Get("data/meshes/bullet.obj");
+		bullets_normal_yellow.material.color = Vector4(1, 1, 0.0, 1);
+		bullets_normal_yellow.damage = 1;
+
+		bullets_normal_purple.isInstanced = true;
+		bullets_normal_purple.material.shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
+		bullets_normal_purple.material.diffuse = Texture::Get("data/meshes/bullet.mtl");
+		bullets_normal_purple.fromPlayer = false;
+		bullets_normal_purple.mesh = Mesh::Get("data/meshes/bullet.obj");
+		bullets_normal_purple.material.color = Vector4(1, 0, 1, 1);
+		bullets_normal_purple.damage = 1;		
+		
+		bullets_normal_orange.isInstanced = true;
+		bullets_normal_orange.material.shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
+		bullets_normal_orange.material.diffuse = Texture::Get("data/meshes/bullet.mtl");
+		bullets_normal_orange.fromPlayer = false;
+		bullets_normal_orange.mesh = Mesh::Get("data/meshes/bullet.obj");
+		bullets_normal_orange.material.color = Vector4(1, 0.5, 0, 1);
+		bullets_normal_orange.damage = 1;
 
 		bullets_smallball.isInstanced = true;
 		bullets_smallball.material.shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
@@ -140,7 +168,7 @@ public:
 		bullets_smallball.fromPlayer = false;
 		bullets_smallball.mesh = Mesh::Get("data/meshes/bulletballsmall.obj");
 		bullets_smallball.material.color = Vector4(1, 0.0, 0.5, 1);
-		bullets_ball.damage = 5;
+		bullets_smallball.damage = 4;
 
 		bullets_ball.isInstanced = true;
 		bullets_ball.material.shader = Shader::Get("data/shaders/instanced.vs", "data/shaders/texture.fs");
