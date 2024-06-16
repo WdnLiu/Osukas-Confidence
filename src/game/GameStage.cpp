@@ -780,7 +780,7 @@ void GameStage::render(void)
 
 	// Render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
-	drawText(2, 400, std::to_string(player->targetable), Vector3(1, 1, 1), 5);
+	//drawText(2, 400, std::to_string(player->targetable), Vector3(1, 1, 1), 5);
 
 	//amogus.render(camera2D);
 	if (!transitioningPhase) renderHUD();

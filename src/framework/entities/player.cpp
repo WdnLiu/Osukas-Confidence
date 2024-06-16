@@ -708,11 +708,15 @@ float Player::updateSubframe(float delta_time) {
 
 	for (int i = 0; i < bullets.size(); i++) {
 		Bullet* b = bullets[i];
-		if (Game::instance->time - b->timer_spawn > 5 || b->to_delete) {
+		if (b->to_delete) {
 			bullets.erase((bullets.begin() + i));
 			delete b;
 			bullet_idx_last++;
 			free_bullets++;
+		}
+		else if (Game::instance->time - b->timer_spawn > 5) {
+			b->active = false;
+			b->update(delta_time);
 		}
 		else b->update(delta_time);
 	}

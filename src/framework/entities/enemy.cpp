@@ -408,7 +408,7 @@ void Enemy::update(float time_elapsed)
 				++burstCount;
 				if (burstCount == 3) {
 					_m.rotate(rand(), Vector3::UP);
-					Patterns::circle2(_m, bullets_normal, 36);
+					Patterns::circle2(_m, bullets_normal_orange, 36);
 					burstCount = 0;
 				}
 			}
@@ -440,7 +440,6 @@ void Enemy::update(float time_elapsed)
 				_m.rotate(-PI / 6, Vector3::UP);
 
 				for (int i = 0; i < 5; i++) {
-					_m.rotate(PI / 12, Vector3::UP);
 					for (int j = 0; j < 10; j++) {
 						if (j > 6) {
 							Patterns::circle2(_m, bullets_normal, 1, BULLET_SPD / 4 + j);
@@ -451,8 +450,8 @@ void Enemy::update(float time_elapsed)
 						else {
 							Patterns::circle2(_m, bullets_normal_yellow, 1, BULLET_SPD / 4 + j);
 						}
-						
 					}
+					_m.rotate(PI / 12, Vector3::UP);
 				}
 			}
 			break;
