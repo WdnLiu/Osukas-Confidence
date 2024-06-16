@@ -12,10 +12,16 @@ enum eButtonID {
 	ExitButton,
 	SensBar,
 	KeyWalk,
+	KeyLeft,
+	KeyBack,
+	KeyRight,
 	KeyJump, 
 	KeyDash,
 	KeyShoot,
-	KeyAuto
+	KeyAuto,
+	KeyS1,
+	KeyS2,
+	KeyS3
 	// ...
 };
 

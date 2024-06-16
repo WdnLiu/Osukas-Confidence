@@ -142,7 +142,7 @@ public:
 		Bullet* b = new BulletSniper(mesh, mat, direction, model, 0.001, "", fromPlayer);
 		b->acceleration = 0;
 		b->opacity_dec = 1;
-		b->damage = 15;
+		b->damage = 16;
 		b->color = Vector4(1);
 		bullets.push_back(b);
 	}

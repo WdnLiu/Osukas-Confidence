@@ -63,11 +63,9 @@ void LoreStageBegin::renderLetter(Texture* font, Vector2 tileSize, char letter, 
 		}
 	}
 	else if (letter == -111) {
-		std::cout << letter;
 		selectedTile = Vector2('N' + 1 - 'A' , 1);
 	}
 	else if (letter == -79) {
-		std::cout << letter;
 		selectedTile = Vector2('n' + 1 - 'a' , 2);
 	}
 	else if (letter == ' ') {
@@ -553,7 +551,7 @@ void LoreStageBegin::render()
 				std::string currentcontent = texts[i].content;
 				if (currentcontent.at(texts[i].currchars - 1) != ' ') {
 					if (texts[i].hasaudio && !texts[i].hasplayed) {
-						std::cout << "playing audio: " << "data/audio/loredump/" + texts[i].audiopath;
+						//std::cout << "playing audio: " << "data/audio/loredump/" + texts[i].audiopath;
 						othersounds = Audio::Play("data/audio/loredump/" + texts[i].audiopath);
 						texts[i].hasplayed = true;
 					}
@@ -603,7 +601,7 @@ void LoreStageBegin::update(double seconds_elapsed)
 
 
 	if (flag == INTRO) {
-		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 102) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_X) || time > 102) {
 			StageManager::instance->transitioning = true;
 			Audio::Stop(backgmusic);
 		}
@@ -612,12 +610,12 @@ void LoreStageBegin::update(double seconds_elapsed)
 			playingbgm = true;
 		}
 		if (time > 8 && !playingbgm1) {
-			backgmusic = Audio::Play("data/audio/loredump/bgm1.flac", 0.2);
+			bgmusic = Audio::Play("data/audio/loredump/bgm1.flac", 0.2);
 			playingbgm1 = true;
 		}
 	}
 	else if (flag == GOODENDING) {
-		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 47) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_X) || time > 47) {
 			StageManager::instance->transitioning = true;
 			Audio::Stop(backgmusic);
 		}
@@ -628,7 +626,7 @@ void LoreStageBegin::update(double seconds_elapsed)
 	}
 	else if (flag == BADENDING) {
 		othersounds = Audio::Play("data/audio/loredump/flashbanggg.mp3", 0.7);
-		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 10) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_X) || time > 10) {
 			StageManager::instance->transitioning = true;
 			Audio::Stop(backgmusic);
 		}

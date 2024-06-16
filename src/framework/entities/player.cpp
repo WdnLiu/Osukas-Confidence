@@ -27,7 +27,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 						startHit = Game::instance->time;
 						audiofile = std::to_string((int)floor(random(2.99))) + ".mp3";
 						Audio::Play("data/audio/h1_" + audiofile);
-						std::cout << "data/audio/h3_" + audiofile;
+						//std::cout << "data/audio/h3_" + audiofile;
 						return;
 					}
 				}
@@ -41,7 +41,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 					startHit = Game::instance->time;
 					audiofile = std::to_string((int)floor(random(2.99))) + ".mp3";
 					Audio::Play("data/audio/h1_" + audiofile);
-					std::cout << "data/audio/h3_" + audiofile;
+					//std::cout << "data/audio/h3_" + audiofile;
 					return;
 				}
 			}
@@ -57,7 +57,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(2.99))) + ".mp3";
 				Audio::Play("data/audio/h1_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -72,7 +72,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
 				Audio::Play("data/audio/h2_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -87,7 +87,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(2.99))) + ".mp3";
 				Audio::Play("data/audio/h1_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -102,7 +102,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
 				Audio::Play("data/audio/h3_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -117,7 +117,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
 				Audio::Play("data/audio/h3_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -132,7 +132,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
 				Audio::Play("data/audio/h3_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -147,7 +147,7 @@ void Player::sphere_bullet_collision(Vector3 position, float radius) {
 				startHit = Game::instance->time;
 				audiofile = std::to_string((int)floor(random(1.99))) + ".mp3";
 				Audio::Play("data/audio/h3_" + audiofile);
-				std::cout << "data/audio/h3_" + audiofile;
+				//std::cout << "data/audio/h3_" + audiofile;
 				return;
 			}
 		}
@@ -204,9 +204,9 @@ void Player::shoot(bullet_type bullet_type = auto_aim) {
 			timer_bullet[bullet_type] = Game::instance->time;
 			mana -= shoot_cost[bullet_type];
 			free_bullets -= amount[bullet_type];
-			std::cout << "Aqui llega \n";
+			//std::cout << "Aqui llega \n";
 			Patterns::shotgun2(_m, bullets_normal, 20);
-			std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
+			//std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
 		}
 		return;
 	}
@@ -217,7 +217,7 @@ void Player::shoot(bullet_type bullet_type = auto_aim) {
 			mana -= shoot_cost[bullet_type];
 			free_bullets -= amount[bullet_type];
 			Patterns::autoAim2(_m, bullets_auto);
-			std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
+			//std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
 		}
 		return;
 	}
@@ -228,19 +228,21 @@ void Player::shoot(bullet_type bullet_type = auto_aim) {
 			mana -= shoot_cost[bullet_type];
 			free_bullets -= amount[bullet_type];
 			Patterns::horizontal3(_m, bullets_normal, 5, 20, 0.3);
-			std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
+			//std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
 		}
 		return;
 	}
 	else if (free_bullets && mana > shoot_cost[bullet_type] && Game::instance->time - timer_bullet[bullet_type] > shoot_cooldown[bullet_type]) {
 		Stage* stage = StageManager::instance->currStage;
-		if (bullet_type == sniper) stage->anxiety_dt -= 2;
+		if (bullet_type == sniper) {
+			if (stage->anxiety > 10) stage->anxiety_dt -= 4;
+		}
 		Audio::Play("data/audio/lazer.mp3");
 		timer_bullet[bullet_type] = Game::instance->time;
 		mana -= shoot_cost[bullet_type];
 		free_bullets -= amount[bullet_type];
 		patterns[bullet_type](StageManager::instance->currStage->enemy->getPosition() + Vector3(0, player_height, 0), forward, _m, bullets, amount[bullet_type], bullet_shaders[bullet_type], bullet_textures[bullet_type], bullet_meshes[bullet_type]);
-		std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
+		//std::cout << mana << " " << bullet_idx_first << " " << free_bullets << " " << bullet_type << std::endl;
 	}
 }
 
@@ -415,9 +417,7 @@ void Player::renderWithLights(Camera* camera) {
 
 
 	bool time = (Game::instance->time - timer_charge[bt]) > charge_cooldown[bt];
-	// Render Bullets
-	for (int i = bullets.size()-1; i >= 0; i--) 
-		bullets[i]->render(camera);
+
 
 
 	// Render the charging
@@ -482,7 +482,13 @@ void Player::renderWithLights(Camera* camera) {
 
 	Shader* shader = shader_lights;
 
-	anim->assignTime(Game::instance->time);
+	if (grounded) {
+		anim->assignTime(Game::instance->time);
+	}
+	else {
+		anim->assignTime((Game::instance->time - timer_jump)/3);
+	}
+	
 
 
 
@@ -537,7 +543,7 @@ void Player::renderWithLights(Camera* camera) {
 
 		veccircleshader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		veccircleshader->setUniform("u_model", stam2);
-		veccircleshader->setUniform("u_color", Vector4(1, 1, 1, clamp(dist - 0.4, 0, 1)));
+		veccircleshader->setUniform("u_color", Vector4(1, 1, 1, clamp((dist - 0.4)/2, 0, 0.4)));
 		vector->render(GL_TRIANGLES);
 
 		veccircleshader->disable();
@@ -582,7 +588,9 @@ void Player::renderWithLights(Camera* camera) {
 	bullets_auto.render(camera);
 
 
-
+	// Render Bullets
+	for (int i = bullets.size() - 1; i >= 0; i--)
+		bullets[i]->render(camera);
 
 
 
@@ -681,8 +689,26 @@ float Player::updateSubframe(float delta_time) {
 	Stage* stage = StageManager::instance->currStage;
 	float time = Game::instance->time;
 	direction = model.frontVector();
-	if ((Input::isKeyPressed( SDL_GetScancodeFromKey(StageManager::instance->k_walk)) && !dashing /* && stage->mouse_locked*/)) m_spd = DEFAULT_SPD;
+	if ((Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_walk)) /* && stage->mouse_locked*/)) {
+		if (!dashing) m_spd = DEFAULT_SPD;
+		direction +=  5*model.frontVector();
+	}
 
+	Matrix44 m = model;
+	m.rotate(m.getYawRotationToAimTo(stage->enemy->getPosition()), Vector3::UP);
+	if (Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_right))  ) {
+		if (!dashing) m_spd = DEFAULT_SPD;
+		direction += -5*m.rightVector();
+	}
+	if (Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_back))) {
+		if (!dashing) m_spd = DEFAULT_SPD;
+		direction += -5*m.frontVector();
+	}
+	if (Input::isKeyPressed(SDL_GetScancodeFromKey(StageManager::instance->k_left))) {
+		if (!dashing) m_spd = DEFAULT_SPD;
+		direction += 5*m.rightVector();
+	}
+	direction.normalize();
 	//direction = Vector3(0.0f);
 
 	//if (Input::isKeyPressed(StageManager::instance->k_walk)) direction += getFront();
@@ -702,6 +728,8 @@ float Player::updateSubframe(float delta_time) {
 	//std::cout << speed << std::endl;
 
 
+	
+
 	direction -= knockback_speed * model.frontVector();
 	direction.normalize();
 	float total_spd = abs(m_spd - knockback_speed);
@@ -714,7 +742,7 @@ float Player::updateSubframe(float delta_time) {
 			bullet_idx_last++;
 			free_bullets++;
 		}
-		else if (Game::instance->time - b->timer_spawn > 5) {
+		else if (Game::instance->time - b->timer_spawn > 2.5) {
 			b->active = false;
 			b->update(delta_time);
 		}
@@ -722,7 +750,7 @@ float Player::updateSubframe(float delta_time) {
 	}
 
 
-	mana += (DEFAULT_COST - 1) * delta_time / (DEFAULT_FIRERATE);
+	mana += (DEFAULT_COST + 2) * delta_time / (DEFAULT_FIRERATE);
 	mana = clamp(mana, 0, 300);
 
 	//stamina += ((stamina) + 1) * delta_time;
@@ -736,8 +764,11 @@ float Player::updateSubframe(float delta_time) {
 
 	Vector3 player_center = getPosition() + Vector3(0, player_height, 0);
 	if (!mesh) std::cout << "NOMESH ";
+
 	colliding = stage->sphere_collided(stage->root, collisions, player_center, HITBOX_RAD);
+
 	stage->ray_collided(stage->root, ground, player_center, -Vector3::UP, 100, false , FLOOR);
+
 
 	for (sCollisionData& g : collisions) {
 		direction += g.colNormal * 10000;
@@ -817,28 +848,106 @@ void Player::update(float delta_time) {
 		shoot();
 	}
 
+	float dot = direction.dot(model.frontVector());
+	Matrix44 m = model;
+	//m.rotate(m.getYawRotationToAimTo(stage->enemy->getPosition()), Vector3::UP);
 
-	if (dashing) {
-		if (current_animation != DASH) {
-			last_animation = current_animation;
-			current_animation = DASH;
-			timer_anim = Game::instance->time;
+	float dotfront = direction.dot(m.frontVector());
+	float dotside = direction.dot(m.rightVector());
+
+	if (dot > 0.9) {
+		if (dashing) {
+			if (current_animation != DASH) {
+				last_animation = current_animation;
+				current_animation = DASH;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else if (total_spd > 0.3) {
+			if (current_animation != WALKING) {
+				last_animation = current_animation;
+				current_animation = WALKING;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else {
+			if (current_animation != IDLE) {
+				last_animation = current_animation;
+				current_animation = IDLE;
+				timer_anim = Game::instance->time;
+			}
 		}
 	}
-	else if (total_spd > 0.3) {
-		if (current_animation != WALKING) {
-			last_animation = current_animation;
-			current_animation = WALKING;
-			timer_anim = Game::instance->time;
+	else if (dotside < -0.6) {
+		if (dashing) {
+			if (current_animation != RUNNING_RIGHT) {
+				last_animation = current_animation;
+				current_animation = RUNNING_RIGHT;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else if (total_spd > 0.3) {
+			if (current_animation != WALKING_RIGHT) {
+				last_animation = current_animation;
+				current_animation = WALKING_RIGHT;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else {
+			if (current_animation != IDLE) {
+				last_animation = current_animation;
+				current_animation = IDLE;
+				timer_anim = Game::instance->time;
+			}
+		}
+	}
+	else if (dotside > 0.6) {
+		if (dashing) {
+			if (current_animation != RUNNING_LEFT) {
+				last_animation = current_animation;
+				current_animation = RUNNING_LEFT;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else if (total_spd > 0.3) {
+			if (current_animation != WALKING_LEFT) {
+				last_animation = current_animation;
+				current_animation = WALKING_LEFT;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else {
+			if (current_animation != IDLE) {
+				last_animation = current_animation;
+				current_animation = IDLE;
+				timer_anim = Game::instance->time;
+			}
 		}
 	}
 	else {
-		if (current_animation != IDLE) {
-			last_animation = current_animation;
-			current_animation = IDLE;
-			timer_anim = Game::instance->time;
+		if (dashing) {
+			if (current_animation != RUNNING_BACK) {
+				last_animation = current_animation;
+				current_animation = RUNNING_BACK;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else if (total_spd > 0.3) {
+			if (current_animation != WALKING_BACK) {
+				last_animation = current_animation;
+				current_animation = WALKING_BACK;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else {
+			if (current_animation != IDLE) {
+				last_animation = current_animation;
+				current_animation = IDLE;
+				timer_anim = Game::instance->time;
+			}
 		}
 	}
+
 //	move(direction * speed * delta_time);
 //	if (!grounded)
 //		move(Vector3::UP * v_spd * delta_time);
@@ -894,12 +1003,12 @@ void Player::onMouseButtonDown(SDL_MouseButtonEvent event)
 
 void Player::onKeyUp(SDL_KeyboardEvent event)
 {
-	if (event.keysym.sym == SDLK_SPACE)
+	if (event.keysym.sym == StageManager::instance->k_jump)
 	{
-		std::cout << "hehe" << std::endl;
+		//std::cout << "hehe" << std::endl;
 		jumping = false;
 	}
-	if (event.keysym.sym == SDLK_q) {
+	if (event.keysym.sym == StageManager::instance->k_shoot) {
 		canshoot = true;
 	}
 }
@@ -907,13 +1016,13 @@ void Player::onKeyUp(SDL_KeyboardEvent event)
 void Player::onKeyDown(SDL_KeyboardEvent event)
 {
 	if (timer_bullet_general > knockback_time[bt]) {
-		if (event.keysym.sym == SDLK_1) {
+		if (event.keysym.sym == StageManager::instance->k_s1) {
 			bt = circle;
 		}
-		if (event.keysym.sym == SDLK_2) {
+		if (event.keysym.sym == StageManager::instance->k_s2) {
 			bt = shotgun;
 		}
-		if (event.keysym.sym == SDLK_3) {
+		if (event.keysym.sym == StageManager::instance->k_s3) {
 			bt = sniper;
 		}
 	}

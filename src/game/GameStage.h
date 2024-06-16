@@ -48,7 +48,7 @@ public:
 	RenderToTexture* cpy;
 	FBO* shadowMapFBO;
 
-
+	bool drawtext = false;
 
 	float enoughmanatimer = 0;
 	float enoughmana;

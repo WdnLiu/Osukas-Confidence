@@ -96,11 +96,11 @@ public:
 	Mesh* shadow_mesh = Mesh::Get("data/meshes/shadow.obj");
 
 	enum anim_type : uint8 {
-		IDLE, WALKING, DASH
+		IDLE, WALKING, DASH, WALKING_LEFT, WALKING_RIGHT, WALKING_BACK, RUNNING_LEFT, RUNNING_RIGHT, RUNNING_BACK
 	};
 	anim_type current_animation = IDLE;
 	anim_type last_animation = IDLE;
-	Animation* animation_pool[3];
+	Animation* animation_pool[9];
 	float timer_anim = 0;
 
 	void sphere_bullet_collision(Vector3 position, float radius);
@@ -126,6 +126,13 @@ public:
 		animation_pool[IDLE] = Animation::Get("data/anims/char_idle.skanim");
 		animation_pool[WALKING] = Animation::Get("data/anims/char_walk.skanim");
 		animation_pool[DASH] = Animation::Get("data/anims/char_run.skanim");
+		animation_pool[WALKING_LEFT] = Animation::Get("data/anims/char_walk_left.skanim");
+		animation_pool[WALKING_RIGHT] = Animation::Get("data/anims/char_walk_right.skanim");
+		animation_pool[WALKING_BACK] = Animation::Get("data/anims/char_walk_back.skanim");
+		animation_pool[RUNNING_LEFT] = Animation::Get("data/anims/char_run_left.skanim");
+		animation_pool[RUNNING_RIGHT] = Animation::Get("data/anims/char_run_right.skanim");
+		animation_pool[RUNNING_BACK] = Animation::Get("data/anims/char_run_back.skanim");
+
 		anim = animation_pool[IDLE];
 	}
 
