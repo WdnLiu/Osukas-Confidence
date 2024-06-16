@@ -1071,7 +1071,7 @@ void GameStage::onKeyDown(SDL_KeyboardEvent event)
 	switch (event.keysym.sym)
 	{
 	case SDLK_ESCAPE: nextStage = "IntroStage"; StageManager::instance->transitioning = true; //ESC key, kill the app
-	case SDLK_a: transitionStart = -10;
+	case SDLK_x: transitionStart = -10;
 	}
 	//switch (event.keysym.sym)
 	//{

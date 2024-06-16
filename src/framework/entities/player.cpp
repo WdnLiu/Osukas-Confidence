@@ -234,7 +234,9 @@ void Player::shoot(bullet_type bullet_type = auto_aim) {
 	}
 	else if (free_bullets && mana > shoot_cost[bullet_type] && Game::instance->time - timer_bullet[bullet_type] > shoot_cooldown[bullet_type]) {
 		Stage* stage = StageManager::instance->currStage;
-		if (bullet_type == sniper) stage->anxiety_dt -= 2;
+		if (bullet_type == sniper) {
+			if (stage->anxiety > 10) stage->anxiety_dt -= 4;
+		}
 		Audio::Play("data/audio/lazer.mp3");
 		timer_bullet[bullet_type] = Game::instance->time;
 		mana -= shoot_cost[bullet_type];
@@ -535,7 +537,7 @@ void Player::renderWithLights(Camera* camera) {
 
 		veccircleshader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 		veccircleshader->setUniform("u_model", stam2);
-		veccircleshader->setUniform("u_color", Vector4(1, 1, 1, clamp(dist - 0.4, 0, 1)));
+		veccircleshader->setUniform("u_color", Vector4(1, 1, 1, clamp((dist - 0.4)/2, 0, 0.4)));
 		vector->render(GL_TRIANGLES);
 
 		veccircleshader->disable();
@@ -682,6 +684,20 @@ float Player::updateSubframe(float delta_time) {
 	float time = Game::instance->time;
 	direction = model.frontVector();
 	if ((Input::isKeyPressed( SDL_GetScancodeFromKey(StageManager::instance->k_walk)) && !dashing /* && stage->mouse_locked*/)) m_spd = DEFAULT_SPD;
+	Matrix44 m = model;
+	m.rotate(m.getYawRotationToAimTo(stage->enemy->getPosition()), Vector3::UP);
+	if (Input::isKeyPressed(SDL_SCANCODE_D)) {
+		if (!dashing) m_spd = DEFAULT_SPD;
+		direction = -m.rightVector();
+	}
+	if (Input::isKeyPressed(SDL_SCANCODE_S)) {
+		if (!dashing) m_spd = DEFAULT_SPD;
+		direction = -m.frontVector();
+	}
+	if (Input::isKeyPressed(SDL_SCANCODE_A)) {
+		if (!dashing) m_spd = DEFAULT_SPD;
+		direction = m.rightVector();
+	}
 
 	//direction = Vector3(0.0f);
 
@@ -701,6 +717,8 @@ float Player::updateSubframe(float delta_time) {
 
 	//std::cout << speed << std::endl;
 
+
+	
 
 	direction -= knockback_speed * model.frontVector();
 	direction.normalize();
@@ -736,8 +754,11 @@ float Player::updateSubframe(float delta_time) {
 
 	Vector3 player_center = getPosition() + Vector3(0, player_height, 0);
 	if (!mesh) std::cout << "NOMESH ";
+
 	colliding = stage->sphere_collided(stage->root, collisions, player_center, HITBOX_RAD);
+
 	stage->ray_collided(stage->root, ground, player_center, -Vector3::UP, 100, false , FLOOR);
+
 
 	for (sCollisionData& g : collisions) {
 		direction += g.colNormal * 10000;
@@ -817,28 +838,106 @@ void Player::update(float delta_time) {
 		shoot();
 	}
 
+	float dot = direction.dot(model.frontVector());
+	Matrix44 m = model;
+	m.rotate(m.getYawRotationToAimTo(stage->enemy->getPosition()), Vector3::UP);
 
-	if (dashing) {
-		if (current_animation != DASH) {
-			last_animation = current_animation;
-			current_animation = DASH;
-			timer_anim = Game::instance->time;
+	float dotfront = direction.dot(m.frontVector());
+	float dotside = direction.dot(m.rightVector());
+
+	if (dot > 0.9) {
+		if (dashing) {
+			if (current_animation != DASH) {
+				last_animation = current_animation;
+				current_animation = DASH;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else if (total_spd > 0.3) {
+			if (current_animation != WALKING) {
+				last_animation = current_animation;
+				current_animation = WALKING;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else {
+			if (current_animation != IDLE) {
+				last_animation = current_animation;
+				current_animation = IDLE;
+				timer_anim = Game::instance->time;
+			}
 		}
 	}
-	else if (total_spd > 0.3) {
-		if (current_animation != WALKING) {
-			last_animation = current_animation;
-			current_animation = WALKING;
-			timer_anim = Game::instance->time;
+	else if (dotside < -0.9) {
+		if (dashing) {
+			if (current_animation != RUNNING_RIGHT) {
+				last_animation = current_animation;
+				current_animation = RUNNING_RIGHT;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else if (total_spd > 0.3) {
+			if (current_animation != WALKING_RIGHT) {
+				last_animation = current_animation;
+				current_animation = WALKING_RIGHT;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else {
+			if (current_animation != IDLE) {
+				last_animation = current_animation;
+				current_animation = IDLE;
+				timer_anim = Game::instance->time;
+			}
+		}
+	}
+	else if (dotside > 0.9) {
+		if (dashing) {
+			if (current_animation != RUNNING_LEFT) {
+				last_animation = current_animation;
+				current_animation = RUNNING_LEFT;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else if (total_spd > 0.3) {
+			if (current_animation != WALKING_LEFT) {
+				last_animation = current_animation;
+				current_animation = WALKING_LEFT;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else {
+			if (current_animation != IDLE) {
+				last_animation = current_animation;
+				current_animation = IDLE;
+				timer_anim = Game::instance->time;
+			}
 		}
 	}
 	else {
-		if (current_animation != IDLE) {
-			last_animation = current_animation;
-			current_animation = IDLE;
-			timer_anim = Game::instance->time;
+		if (dashing) {
+			if (current_animation != RUNNING_BACK) {
+				last_animation = current_animation;
+				current_animation = RUNNING_BACK;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else if (total_spd > 0.3) {
+			if (current_animation != WALKING_BACK) {
+				last_animation = current_animation;
+				current_animation = WALKING_BACK;
+				timer_anim = Game::instance->time;
+			}
+		}
+		else {
+			if (current_animation != IDLE) {
+				last_animation = current_animation;
+				current_animation = IDLE;
+				timer_anim = Game::instance->time;
+			}
 		}
 	}
+
 //	move(direction * speed * delta_time);
 //	if (!grounded)
 //		move(Vector3::UP * v_spd * delta_time);

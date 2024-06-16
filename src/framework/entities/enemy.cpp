@@ -183,11 +183,43 @@ void Enemy::sphere_bullet_collision(Vector3 position, float radius) {
 			stage->anxiety_dt += bns.damage;
 		}
 	}
+	for (int i = 0; i < bns.models.size(); i++) {
+		Matrix44& m = stage->player->bullets_normal.models[i];
+		sCollisionData data;
+		if (bns.mesh->testSphereCollision(m, position + Vector3(0, radius, 0), radius, data.colPoint, data.colNormal)) {
+			bns.despawnBullet(i);
+			stage->anxiety_dt += bns.damage;
+		}
+	}
+	for (int i = 0; i < bns.models.size(); i++) {
+		Matrix44& m = stage->player->bullets_normal.models[i];
+		sCollisionData data;
+		if (bns.mesh->testSphereCollision(m, position + Vector3(0, 2* radius, 0), radius, data.colPoint, data.colNormal)) {
+			bns.despawnBullet(i);
+			stage->anxiety_dt += bns.damage;
+		}
+	}
 	BulletAuto& bas = stage->player->bullets_auto;
 	for (int i = 0; i < bas.models.size(); i++) {
 		Matrix44& m = bas.models[i];
 		sCollisionData data;
 		if (bas.mesh->testSphereCollision(m, position, radius, data.colPoint, data.colNormal)) {
+			bas.despawnBullet(i);
+			stage->anxiety_dt += bas.damage;
+		}
+	}
+	for (int i = 0; i < bas.models.size(); i++) {
+		Matrix44& m = bas.models[i];
+		sCollisionData data;
+		if (bas.mesh->testSphereCollision(m, position + Vector3(0, radius, 0), radius, data.colPoint, data.colNormal)) {
+			bas.despawnBullet(i);
+			stage->anxiety_dt += bas.damage;
+		}
+	}
+	for (int i = 0; i < bas.models.size(); i++) {
+		Matrix44& m = bas.models[i];
+		sCollisionData data;
+		if (bas.mesh->testSphereCollision(m, position + Vector3(0, 2 * radius, 0), radius, data.colPoint, data.colNormal)) {
 			bas.despawnBullet(i);
 			stage->anxiety_dt += bas.damage;
 		}

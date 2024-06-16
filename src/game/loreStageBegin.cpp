@@ -603,7 +603,7 @@ void LoreStageBegin::update(double seconds_elapsed)
 
 
 	if (flag == INTRO) {
-		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 102) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_X) || time > 102) {
 			StageManager::instance->transitioning = true;
 			Audio::Stop(backgmusic);
 		}
@@ -612,12 +612,12 @@ void LoreStageBegin::update(double seconds_elapsed)
 			playingbgm = true;
 		}
 		if (time > 8 && !playingbgm1) {
-			backgmusic = Audio::Play("data/audio/loredump/bgm1.flac", 0.2);
+			bgmusic = Audio::Play("data/audio/loredump/bgm1.flac", 0.2);
 			playingbgm1 = true;
 		}
 	}
 	else if (flag == GOODENDING) {
-		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 47) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_X) || time > 47) {
 			StageManager::instance->transitioning = true;
 			Audio::Stop(backgmusic);
 		}
@@ -628,7 +628,7 @@ void LoreStageBegin::update(double seconds_elapsed)
 	}
 	else if (flag == BADENDING) {
 		othersounds = Audio::Play("data/audio/loredump/flashbanggg.mp3", 0.7);
-		if (Input::wasKeyPressed(SDL_SCANCODE_A) || time > 10) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_X) || time > 10) {
 			StageManager::instance->transitioning = true;
 			Audio::Stop(backgmusic);
 		}
